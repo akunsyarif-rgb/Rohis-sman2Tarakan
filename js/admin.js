@@ -12,6 +12,21 @@
   const qs = (sel, root) => (root || document).querySelector(sel);
   const qsa = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
+  /**
+   * Guards a view loader against out-of-order async responses: if the
+   * same view is revisited (or a save triggers a reload) before an
+   * earlier call finished, the earlier call's render is discarded
+   * instead of overwriting the newer one.
+   */
+  function latestOnly(fn) {
+    let token = 0;
+    return async (...args) => {
+      const mine = ++token;
+      const isCurrent = () => mine === token;
+      return fn(isCurrent, ...args);
+    };
+  }
+
   function toast(message) {
     const el = qs('#admin-toast');
     if (!el) return;
@@ -80,13 +95,14 @@
   // --------------------------------------------------------------------
   // Dashboard
   // --------------------------------------------------------------------
-  async function loadDashboard() {
+  const loadDashboard = latestOnly(async (isCurrent) => {
     const [activities, articles, programs, media] = await Promise.all([
       ContentRepository.getActivities(),
       ContentRepository.getArticles(),
       ContentRepository.getPrograms(),
       ContentRepository.getMedia(),
     ]);
+    if (!isCurrent()) return;
 
     qs('[data-stat="kegiatan"]').textContent = activities.length;
     qs('[data-stat="tulisan"]').textContent = articles.length;
@@ -127,13 +143,14 @@
         }
       });
     });
-  }
+  });
 
   // --------------------------------------------------------------------
   // Kegiatan (Activities)
   // --------------------------------------------------------------------
-  async function loadActivityList() {
+  const loadActivityList = latestOnly(async (isCurrent) => {
     const activities = await ContentRepository.getActivities();
+    if (!isCurrent()) return;
     const list = qs('[data-list="activities"]');
     list.innerHTML = activities.length
       ? activities
@@ -166,7 +183,7 @@
         }
       })
     );
-  }
+  });
 
   async function previewSavedActivity(id) {
     const activity = await ContentRepository.getActivity(id);
@@ -239,8 +256,9 @@
   // --------------------------------------------------------------------
   // Tulisan (Articles)
   // --------------------------------------------------------------------
-  async function loadArticleList() {
+  const loadArticleList = latestOnly(async (isCurrent) => {
     const articles = await ContentRepository.getArticles();
+    if (!isCurrent()) return;
     const list = qs('[data-list="articles"]');
     list.innerHTML = articles.length
       ? articles
@@ -273,7 +291,7 @@
         }
       })
     );
-  }
+  });
 
   async function previewSavedArticle(id) {
     const article = await ContentRepository.getArticle(id);
@@ -347,8 +365,9 @@
   // --------------------------------------------------------------------
   // Program
   // --------------------------------------------------------------------
-  async function loadProgramList() {
+  const loadProgramList = latestOnly(async (isCurrent) => {
     const programs = (await ContentRepository.getPrograms()).sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (!isCurrent()) return;
     const list = qs('[data-list="programs"]');
     list.innerHTML = programs.length
       ? programs
@@ -391,7 +410,7 @@
         }
       })
     );
-  }
+  });
 
   async function openProgramForm(id) {
     const form = qs('[data-form="program"]');
@@ -457,8 +476,9 @@
       </div>`;
   }
 
-  async function loadMediaList() {
+  const loadMediaList = latestOnly(async (isCurrent) => {
     const media = await ContentRepository.getMedia();
+    if (!isCurrent()) return;
     const list = qs('[data-list="media"]');
     list.innerHTML = media.length
       ? media.map((m) => mediaThumbHTML(m, false)).join('')
@@ -472,7 +492,7 @@
         }
       })
     );
-  }
+  });
 
   function initMediaUpload() {
     qs('[data-action="upload-media"]').addEventListener('change', async (e) => {
