@@ -3,94 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rohis SMAN 2 Tarakan</title>
+  <title>Rohis SMADA Tarakan — Ruang Tumbuh & Belajar</title>
+  <meta name="description" content="Wadah eksplorasi keislaman siswa-siswi SMAN 2 Tarakan yang inklusif, kritis, dan berakar pada nilai-nilai kebaikan.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#234233">
+  <link rel="canonical" href="https://rohis-sman2tarakan.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Rohis SMADA Tarakan — Ruang Tumbuh & Belajar">
+  <meta property="og:description" content="Wadah eksplorasi keislaman siswa-siswi SMAN 2 Tarakan yang inklusif, kritis, dan berakar pada nilai-nilai kebaikan.">
+  <meta property="og:url" content="https://rohis-sman2tarakan.github.io/">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23234233' rx='16'/%3E%3Ctext x='50' y='68' font-size='60' font-family='Georgia, serif' fill='%23FBFBF9' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FBFBF9; color: #1C1E1B; }
-    .font-serif-custom { font-family: 'Playfair Display', serif; }
-  </style>
+  <link rel="stylesheet" href="/css/style.css">
+  <noscript><style>[data-reveal]{opacity:1!important;transform:none!important;}</style></noscript>
 </head>
-<body class="selection:bg-[#234233] selection:text-white">
+<body class="selection:bg-forest selection:text-white" data-page="home">
+
+  <a class="skip-link" href="#main">Lewati ke konten utama</a>
 
   <!-- Navigasi -->
-  <nav class="max-w-4xl mx-auto px-6 py-8 flex justify-between items-center border-b border-[#E5E4DE]">
-    <span class="font-semibold tracking-tight text-sm uppercase text-[#234233]">Rohis SMADA Tarakan</span>
-    <div class="space-x-6 text-sm text-neutral-600">
-      <a href="#kegiatan" class="hover:text-black transition">Program</a>
-      <a href="#buletin" class="hover:text-black transition">Tulisan</a>
-      <a href="#kontak" class="hover:text-black transition">Kontak</a>
+  <nav id="site-nav" class="site-nav sticky top-0 z-40 border-b">
+    <div class="max-w-4xl mx-auto px-6 py-5 flex justify-between items-center">
+      <a href="/" class="font-semibold tracking-tight text-sm uppercase text-forest">Rohis SMADA Tarakan</a>
+      <div class="hidden md:flex items-center gap-6 text-sm text-neutral-600">
+        <a href="#program" data-nav="home" class="hover:text-black transition">Program</a>
+        <a href="/kegiatan.html" data-nav="kegiatan" class="hover:text-black transition">Kegiatan</a>
+        <a href="/tulisan.html" data-nav="tulisan" class="hover:text-black transition">Tulisan</a>
+        <a href="/tentang.html" data-nav="tentang" class="hover:text-black transition">Tentang</a>
+        <a href="#kontak" class="hover:text-black transition">Kontak</a>
+        <a href="#kontak" class="bg-forest text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-black transition">Gabung</a>
+      </div>
+      <button id="nav-toggle" type="button" class="md:hidden tap-target flex items-center justify-center" aria-expanded="false" aria-controls="nav-menu" aria-label="Buka menu navigasi">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="nav-menu" class="hidden md:hidden flex-col gap-1 px-6 pb-6 text-sm">
+      <a href="#program" data-nav="home" class="tap-target flex items-center px-2 hover:text-forest">Program</a>
+      <a href="/kegiatan.html" data-nav="kegiatan" class="tap-target flex items-center px-2 hover:text-forest">Kegiatan</a>
+      <a href="/tulisan.html" data-nav="tulisan" class="tap-target flex items-center px-2 hover:text-forest">Tulisan</a>
+      <a href="/tentang.html" data-nav="tentang" class="tap-target flex items-center px-2 hover:text-forest">Tentang</a>
+      <a href="#kontak" class="tap-target flex items-center px-2 hover:text-forest">Kontak</a>
+      <a href="#kontak" class="mt-2 inline-flex items-center justify-center bg-forest text-white px-4 py-3 rounded-full text-sm font-medium">Gabung</a>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <header class="max-w-4xl mx-auto px-6 pt-20 pb-16">
-    <p class="text-xs uppercase tracking-widest text-[#234233] font-semibold mb-4">Ruang Tumbuh & Belajar</p>
-    <h1 class="font-serif-custom text-4xl sm:text-6xl font-normal leading-tight mb-6">
-      Menemukan makna, merawat nalar, dan mempererat ukhuwah.
-    </h1>
-    <p class="text-neutral-600 max-w-xl text-lg leading-relaxed mb-8">
-      Wadah eksplorasi keislaman siswa-siswi SMAN 2 Tarakan yang inklusif, kritis, dan berakar pada nilai-nilai kebaikan.
-    </p>
-    <div class="flex items-center gap-4">
-      <a href="#kontak" class="bg-[#234233] text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition">Gabung Bersama Kami</a>
-      <span class="text-xs text-neutral-500">• Pertemuan Rutin Setiap Jumat</span>
-    </div>
-  </header>
+  <main id="main">
+    <!-- Hero -->
+    <header class="max-w-4xl mx-auto px-6 pt-16 sm:pt-20 pb-16">
+      <p class="text-xs uppercase tracking-widest text-forest font-semibold mb-4" data-field="hero-eyebrow" data-reveal></p>
+      <h1 class="font-serif-custom text-4xl sm:text-6xl font-normal leading-tight mb-6" data-field="hero-headline" data-reveal></h1>
+      <p class="text-neutral-600 max-w-xl text-lg leading-relaxed mb-8" data-field="hero-description" data-reveal></p>
+      <div class="flex flex-wrap items-center gap-4" data-reveal>
+        <a href="#kontak" data-field="hero-cta" class="tap-target inline-flex items-center bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition"></a>
+        <span class="text-xs text-neutral-500">&bull; <span data-field="hero-meta"></span></span>
+      </div>
+    </header>
 
-  <!-- Program Utama (Grid Minimalis) -->
-  <section id="kegiatan" class="max-w-4xl mx-auto px-6 py-16 border-t border-[#E5E4DE]">
-    <h2 class="text-xs uppercase tracking-widest text-neutral-500 font-semibold mb-8">Fokus & Program</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div class="border-l border-[#234233] pl-4">
-        <span class="text-xs font-mono text-neutral-400">01</span>
-        <h3 class="font-serif-custom text-xl mt-1 mb-2">Kajian Tematik</h3>
-        <p class="text-sm text-neutral-600 leading-relaxed">Diskusi santai seputar isu kontemporer, fiqih praktis, dan pembinaan karakter pemuda.</p>
-      </div>
-      <div class="border-l border-[#234233] pl-4">
-        <span class="text-xs font-mono text-neutral-400">02</span>
-        <h3 class="font-serif-custom text-xl mt-1 mb-2">Aksi Sosial</h3>
-        <p class="text-sm text-neutral-600 leading-relaxed">Penyaluran bantuan, program berbagi berkah, dan kepedulian lingkungan sekitar sekolah.</p>
-      </div>
-      <div class="border-l border-[#234233] pl-4">
-        <span class="text-xs font-mono text-neutral-400">03</span>
-        <h3 class="font-serif-custom text-xl mt-1 mb-2">Literasi & Media</h3>
-        <p class="text-sm text-neutral-600 leading-relaxed">Penerbitan buletin berkala, dokumentasi dakwah visual, dan penulisan reflektif.</p>
-      </div>
-    </div>
-  </section>
+    <!-- Tentang Singkat -->
+    <section id="tentang" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
+      <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-6" data-field="about-eyebrow" data-reveal></h2>
+      <p class="font-serif-custom text-2xl sm:text-3xl leading-snug mb-3 max-w-2xl" data-field="about-lead" data-reveal></p>
+      <p class="text-neutral-600 leading-relaxed max-w-xl" data-field="about-body" data-reveal></p>
+      <a href="/tentang.html" class="inline-block mt-6 text-sm font-medium text-forest" data-reveal>Selengkapnya tentang kami &rarr;</a>
+    </section>
 
-  <!-- Bagian Buletin / Tulisan Pendek -->
-  <section id="buletin" class="max-w-4xl mx-auto px-6 py-16 border-t border-[#E5E4DE]">
-    <div class="flex justify-between items-end mb-8">
-      <h2 class="text-xs uppercase tracking-widest text-neutral-500 font-semibold">Buletin & Refleksi</h2>
-      <span class="text-xs text-neutral-500">Arsip Pemikiran Siswa</span>
-    </div>
-    <div class="space-y-6">
-      <article class="p-6 bg-[#F4F3EF] rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <span class="text-xs text-[#234233] font-medium">Edisi Muharram</span>
-          <h3 class="font-serif-custom text-xl mt-1">Menjaga Integritas Akademik di Era Digital</h3>
-          <p class="text-xs text-neutral-500 mt-1">Ditulis oleh Divisi Literasi • 3 menit membaca</p>
-        </div>
-        <span class="text-sm font-medium text-[#234233] shrink-0">Baca Selengkapnya &rarr;</span>
-      </article>
-    </div>
-  </section>
+    <!-- Program -->
+    <section id="program" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
+      <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-8" data-reveal>02 / Apa yang Kami Lakukan</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-list="programs"></div>
+    </section>
+
+    <!-- Kegiatan Terbaru -->
+    <section id="kegiatan" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
+      <div class="flex justify-between items-end mb-10">
+        <h2 class="text-xs uppercase tracking-widest text-muted font-semibold" data-reveal>03 / Kegiatan Terkini</h2>
+        <a href="/kegiatan.html" class="text-xs text-muted hover:text-forest" data-reveal>Lihat semua &rarr;</a>
+      </div>
+      <div data-list="activities-preview"></div>
+    </section>
+
+    <!-- Tulisan Terbaru -->
+    <section id="buletin" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
+      <div class="flex justify-between items-end mb-8">
+        <h2 class="text-xs uppercase tracking-widest text-muted font-semibold" data-reveal>04 / Rohis Journal</h2>
+        <a href="/tulisan.html" class="text-xs text-muted hover:text-forest" data-reveal>Arsip tulisan &rarr;</a>
+      </div>
+      <div class="space-y-4" data-list="articles-preview"></div>
+    </section>
+
+    <!-- CTA Bergabung -->
+    <section class="max-w-4xl mx-auto px-6 py-20 border-t border-line text-center">
+      <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-6" data-field="join-eyebrow" data-reveal></h2>
+      <p class="font-serif-custom text-2xl sm:text-4xl leading-snug max-w-2xl mx-auto mb-8" data-field="join-headline" data-reveal></p>
+      <a href="#kontak" data-field="join-cta" class="tap-target inline-flex items-center bg-forest text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-black transition" data-reveal></a>
+    </section>
+  </main>
 
   <!-- Footer / Hubungi -->
-  <footer id="kontak" class="max-w-4xl mx-auto px-6 py-16 border-t border-[#E5E4DE] text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6">
+  <footer id="kontak" class="max-w-4xl mx-auto px-6 py-16 border-t border-line text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6">
     <div>
-      <p class="font-serif-custom text-lg">Rohis SMAN 2 Tarakan</p>
-      <p class="text-xs text-neutral-500 mt-1">Tarakan, Kalimantan Utara • Dibangun dengan kemandirian.</p>
+      <p class="font-serif-custom text-lg" data-field="footer-org">Rohis SMADA Tarakan</p>
+      <p class="text-xs text-muted mt-1"><span data-field="footer-school">SMAN 2 Tarakan</span> &middot; <span data-field="footer-address">Tarakan, Kalimantan Utara</span> &bull; Dibangun dengan kemandirian.</p>
+      <a href="/kelola/" class="text-xs text-muted/70 hover:text-forest mt-3 inline-block">Kelola</a>
     </div>
-    <div class="flex gap-4 text-sm font-medium">
-      <a href="https://instagram.com" target="_blank" class="hover:underline">Instagram</a>
-      <a href="https://wa.me" target="_blank" class="hover:underline">WhatsApp</a>
+    <div class="flex flex-col items-center md:items-end gap-2">
+      <div class="flex gap-4 text-sm font-medium">
+        <a data-field="social-instagram" href="#" target="_blank" rel="noopener" class="hover:underline">Instagram</a>
+        <a data-field="social-whatsapp" href="#" target="_blank" rel="noopener" class="hover:underline">WhatsApp</a>
+      </div>
+      <a data-field="footer-email" href="#" class="text-xs text-muted hover:text-forest hidden"></a>
     </div>
   </footer>
 
+  <script src="/js/data.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>

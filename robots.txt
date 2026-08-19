@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /kelola/
+
+Sitemap: https://rohis-sman2tarakan.github.io/sitemap.xml
