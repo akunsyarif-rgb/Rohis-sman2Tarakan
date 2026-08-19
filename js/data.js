@@ -54,10 +54,11 @@
   }
 
   async function loadCollection(key) {
-    const cached = readCache(key);
+    const storageKey = STORAGE_KEYS[key];
+    const cached = readCache(storageKey);
     if (cached !== null) return cached;
     const seed = await loadSeed(SEED_PATHS[key]);
-    writeCache(key, seed);
+    writeCache(storageKey, seed);
     return seed;
   }
 
