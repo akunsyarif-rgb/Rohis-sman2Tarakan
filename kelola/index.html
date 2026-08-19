@@ -341,6 +341,21 @@
 
           <button type="submit" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition">Simpan Pengaturan</button>
         </form>
+
+        <div class="max-w-2xl mt-14 pt-10 border-t border-line">
+          <h2 class="font-serif-custom text-lg mb-2">Ekspor Data</h2>
+          <p class="text-sm text-muted mb-6 max-w-lg">
+            Perubahan di halaman ini hanya tersimpan di browser Anda. Untuk membuat perubahan
+            terlihat oleh semua pengunjung situs, unduh file di bawah lalu ganti file yang sama
+            di folder <code>data/</code> pada repository (lewat GitHub, atau kirim ke pengelola teknis).
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <button type="button" class="tap-target text-sm px-4 py-2.5 border border-line rounded-full hover:border-forest" data-export="site">Unduh site.json</button>
+            <button type="button" class="tap-target text-sm px-4 py-2.5 border border-line rounded-full hover:border-forest" data-export="programs">Unduh programs.json</button>
+            <button type="button" class="tap-target text-sm px-4 py-2.5 border border-line rounded-full hover:border-forest" data-export="activities">Unduh activities.json</button>
+            <button type="button" class="tap-target text-sm px-4 py-2.5 border border-line rounded-full hover:border-forest" data-export="articles">Unduh articles.json</button>
+          </div>
+        </div>
       </section>
 
     </main>
