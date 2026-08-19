@@ -23,6 +23,32 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+  Minimal fallback for the two Tailwind utilities used to drive
+  show/hide logic (mobile nav, admin sub-views, media picker modal).
+  Tailwind's own generated rules load later and take precedence, but
+  if the CDN script is ever slow/unreachable, interactive elements
+  should still not silently overlap or block the page.
+*/
+.hidden {
+  display: none;
+}
+
+.flex {
+  display: flex;
+}
+
+/* Same reasoning, for the responsive nav/sidebar show-at-desktop pattern. */
+@media (min-width: 768px) {
+  .md\:flex {
+    display: flex;
+  }
+
+  .md\:hidden {
+    display: none;
+  }
+}
+
 body {
   font-family: var(--font-ui);
   background-color: var(--color-ivory);
