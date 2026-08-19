@@ -591,6 +591,35 @@
   }
 
   // --------------------------------------------------------------------
+  // Data export (download current localStorage content as data/*.json)
+  // --------------------------------------------------------------------
+  function initDataExport() {
+    const getters = {
+      site: () => ContentRepository.getSite(),
+      programs: () => ContentRepository.getPrograms(),
+      activities: () => ContentRepository.getActivities(),
+      articles: () => ContentRepository.getArticles(),
+    };
+
+    qsa('[data-export]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const key = btn.dataset.export;
+        const data = await getters[key]();
+        const blob = new Blob([JSON.stringify(data, null, 2) + '\n'], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${key}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        toast(`${key}.json diunduh.`);
+      });
+    });
+  }
+
+  // --------------------------------------------------------------------
   // Dashboard quick actions + sidebar toggle
   // --------------------------------------------------------------------
   function initQuickActions() {
@@ -637,6 +666,7 @@
     initMediaUpload();
     initMediaPicker();
     initSettingsForm();
+    initDataExport();
     window.addEventListener('hashchange', renderView);
     renderView();
   });
