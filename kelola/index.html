@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola — Rohis SMADA Tarakan</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#234233">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23234233' rx='16'/%3E%3Ctext x='50' y='68' font-size='60' font-family='Georgia, serif' fill='%23FBFBF9' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="selection:bg-forest selection:text-white" data-page="kelola">
+
+  <a class="skip-link" href="#admin-main">Lewati ke konten utama</a>
+
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar / mobile top bar -->
+    <header class="md:hidden flex items-center justify-between px-5 py-4 border-b border-line bg-white sticky top-0 z-30">
+      <div>
+        <p class="font-serif-custom text-lg leading-none">Kelola</p>
+        <p class="text-xs text-muted">Rohis SMADA Tarakan</p>
+      </div>
+      <button id="sidebar-toggle" type="button" class="tap-target flex items-center justify-center" aria-expanded="false" aria-controls="sidebar" aria-label="Buka menu kelola">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </header>
+
+    <aside id="sidebar" class="hidden md:flex md:flex-col w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-line bg-white px-4 py-6 md:min-h-screen">
+      <div class="hidden md:block px-2 mb-8">
+        <a href="/" class="text-xs text-muted hover:text-forest">&larr; Kembali ke situs</a>
+        <p class="font-serif-custom text-2xl mt-2">Kelola</p>
+        <p class="text-xs text-muted">Rohis SMADA Tarakan</p>
+      </div>
+      <nav class="space-y-1" aria-label="Navigasi admin">
+        <a href="#dashboard" class="admin-nav-link" data-nav-view="dashboard">Dashboard</a>
+        <a href="#kegiatan" class="admin-nav-link" data-nav-view="kegiatan">Kegiatan</a>
+        <a href="#tulisan" class="admin-nav-link" data-nav-view="tulisan">Tulisan</a>
+        <a href="#program" class="admin-nav-link" data-nav-view="program">Program</a>
+        <a href="#media" class="admin-nav-link" data-nav-view="media">Media</a>
+        <a href="#pengaturan" class="admin-nav-link" data-nav-view="pengaturan">Pengaturan</a>
+      </nav>
+      <div class="mt-auto pt-8 hidden md:block">
+        <a href="/" class="text-xs text-muted hover:text-forest">&larr; Kembali ke situs publik</a>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main id="admin-main" class="flex-1 min-w-0 px-5 md:px-10 py-8 md:py-10">
+
+      <!-- DASHBOARD -->
+      <section class="admin-view" data-view-panel="dashboard">
+        <p class="text-xs uppercase tracking-widest text-forest font-semibold mb-2">Kelola Website</p>
+        <h1 class="font-serif-custom text-3xl mb-8">Selamat datang.</h1>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div class="border border-line rounded-xl p-5">
+            <p class="font-serif-custom text-3xl" data-stat="kegiatan">0</p>
+            <p class="text-xs uppercase tracking-widest text-muted mt-1">Kegiatan</p>
+          </div>
+          <div class="border border-line rounded-xl p-5">
+            <p class="font-serif-custom text-3xl" data-stat="tulisan">0</p>
+            <p class="text-xs uppercase tracking-widest text-muted mt-1">Tulisan</p>
+          </div>
+          <div class="border border-line rounded-xl p-5">
+            <p class="font-serif-custom text-3xl" data-stat="program">0</p>
+            <p class="text-xs uppercase tracking-widest text-muted mt-1">Program</p>
+          </div>
+          <div class="border border-line rounded-xl p-5">
+            <p class="font-serif-custom text-3xl" data-stat="media">0</p>
+            <p class="text-xs uppercase tracking-widest text-muted mt-1">Media</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mb-10">
+          <button type="button" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition" data-action="new-activity">+ Tambah Kegiatan</button>
+          <button type="button" class="tap-target border border-forest text-forest px-5 py-2.5 rounded-full text-sm font-medium hover:bg-forest hover:text-white transition" data-action="new-article">+ Tulis Artikel</button>
+        </div>
+
+        <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-4">Aktivitas Terbaru</h2>
+        <div data-list="recent-activity" class="divide-y divide-line border-t border-line"></div>
+      </section>
+
+      <!-- KEGIATAN -->
+      <section class="admin-view" data-view-panel="kegiatan">
+        <div data-subview="kegiatan-list">
+          <div class="flex items-center justify-between mb-8">
+            <h1 class="font-serif-custom text-3xl">Kegiatan</h1>
+            <button type="button" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition" data-action="new-activity">+ Tambah Kegiatan</button>
+          </div>
+          <div data-list="activities" class="border-t border-line"></div>
+        </div>
+
+        <div data-subview="kegiatan-form" class="hidden max-w-2xl">
+          <button type="button" class="text-sm text-muted hover:text-forest mb-6" data-action="back-to-list" data-target="kegiatan">&larr; Kembali ke daftar kegiatan</button>
+          <h1 class="font-serif-custom text-2xl mb-6" data-form-title="kegiatan">Kegiatan Baru</h1>
+          <form data-form="activity" class="space-y-5">
+            <input type="hidden" name="id">
+            <div>
+              <label class="admin-label" for="activity-title">Judul</label>
+              <input class="admin-input" id="activity-title" name="title" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label" for="activity-date">Tanggal</label>
+                <input class="admin-input" id="activity-date" name="date" type="date" required>
+              </div>
+              <div>
+                <label class="admin-label" for="activity-category">Kategori</label>
+                <input class="admin-input" id="activity-category" name="category" placeholder="Kajian, Aksi Sosial, ...">
+              </div>
+            </div>
+            <div>
+              <label class="admin-label" for="activity-excerpt">Ringkasan</label>
+              <textarea class="admin-textarea" id="activity-excerpt" name="excerpt" style="min-height:5rem"></textarea>
+            </div>
+            <div>
+              <label class="admin-label" for="activity-cover">Cover</label>
+              <div class="flex gap-2">
+                <input class="admin-input" id="activity-cover" name="cover" placeholder="URL gambar atau pilih dari Media">
+                <button type="button" class="tap-target shrink-0 border border-line rounded-lg px-4 text-sm hover:border-forest" data-action="pick-media" data-target-input="activity-cover">Pilih</button>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label" for="activity-content">Isi</label>
+              <textarea class="admin-textarea" id="activity-content" name="content"></textarea>
+            </div>
+            <div>
+              <label class="admin-label" for="activity-status">Status</label>
+              <select class="admin-select" id="activity-status" name="status">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+            <div class="flex flex-wrap gap-3 pt-2">
+              <button type="submit" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition">Simpan</button>
+              <button type="button" class="tap-target border border-line px-5 py-2.5 rounded-full text-sm font-medium hover:border-forest" data-action="preview-activity">Preview</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- TULISAN -->
+      <section class="admin-view" data-view-panel="tulisan">
+        <div data-subview="tulisan-list">
+          <div class="flex items-center justify-between mb-8">
+            <h1 class="font-serif-custom text-3xl">Tulisan</h1>
+            <button type="button" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition" data-action="new-article">+ Tulisan Baru</button>
+          </div>
+          <div data-list="articles" class="border-t border-line"></div>
+        </div>
+
+        <div data-subview="tulisan-form" class="hidden max-w-2xl">
+          <button type="button" class="text-sm text-muted hover:text-forest mb-6" data-action="back-to-list" data-target="tulisan">&larr; Kembali ke daftar tulisan</button>
+          <h1 class="font-serif-custom text-2xl mb-6" data-form-title="tulisan">Tulisan Baru</h1>
+          <form data-form="article" class="space-y-5">
+            <input type="hidden" name="id">
+            <div>
+              <label class="admin-label" for="article-title">Judul</label>
+              <input class="admin-input" id="article-title" name="title" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label" for="article-author">Penulis</label>
+                <input class="admin-input" id="article-author" name="author">
+              </div>
+              <div>
+                <label class="admin-label" for="article-date">Tanggal</label>
+                <input class="admin-input" id="article-date" name="date" type="date" required>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label" for="article-category">Kategori</label>
+              <input class="admin-input" id="article-category" name="category" placeholder="Akhlak, Pelajar, Islam, Digital, ...">
+            </div>
+            <div>
+              <label class="admin-label" for="article-cover">Cover</label>
+              <div class="flex gap-2">
+                <input class="admin-input" id="article-cover" name="cover" placeholder="URL gambar atau pilih dari Media">
+                <button type="button" class="tap-target shrink-0 border border-line rounded-lg px-4 text-sm hover:border-forest" data-action="pick-media" data-target-input="article-cover">Pilih</button>
+              </div>
+            </div>
+            <div>
+              <label class="admin-label" for="article-excerpt">Ringkasan</label>
+              <textarea class="admin-textarea" id="article-excerpt" name="excerpt" style="min-height:5rem"></textarea>
+            </div>
+            <div>
+              <label class="admin-label" for="article-content">Isi</label>
+              <textarea class="admin-textarea" id="article-content" name="content"></textarea>
+            </div>
+            <div>
+              <label class="admin-label" for="article-status">Status</label>
+              <select class="admin-select" id="article-status" name="status">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+            <div class="flex flex-wrap gap-3 pt-2">
+              <button type="submit" data-submit-status="draft" class="tap-target border border-forest text-forest px-5 py-2.5 rounded-full text-sm font-medium hover:bg-forest hover:text-white transition">Simpan Draft</button>
+              <button type="submit" data-submit-status="published" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition">Terbitkan</button>
+              <button type="button" class="tap-target border border-line px-5 py-2.5 rounded-full text-sm font-medium hover:border-forest" data-action="preview-article">Preview</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- PROGRAM -->
+      <section class="admin-view" data-view-panel="program">
+        <div data-subview="program-list">
+          <div class="flex items-center justify-between mb-8">
+            <h1 class="font-serif-custom text-3xl">Program</h1>
+            <button type="button" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition" data-action="new-program">+ Tambah Program</button>
+          </div>
+          <div data-list="programs" class="border-t border-line"></div>
+        </div>
+
+        <div data-subview="program-form" class="hidden max-w-xl">
+          <button type="button" class="text-sm text-muted hover:text-forest mb-6" data-action="back-to-list" data-target="program">&larr; Kembali ke daftar program</button>
+          <h1 class="font-serif-custom text-2xl mb-6" data-form-title="program">Program Baru</h1>
+          <form data-form="program" class="space-y-5">
+            <input type="hidden" name="id">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label" for="program-number">Nomor</label>
+                <input class="admin-input" id="program-number" name="number" placeholder="01">
+              </div>
+              <div>
+                <label class="admin-label" for="program-order">Urutan</label>
+                <input class="admin-input" id="program-order" name="order" type="number" min="1">
+              </div>
+            </div>
+            <div>
+              <label class="admin-label" for="program-title">Judul</label>
+              <input class="admin-input" id="program-title" name="title" required>
+            </div>
+            <div>
+              <label class="admin-label" for="program-description">Deskripsi</label>
+              <textarea class="admin-textarea" id="program-description" name="description" style="min-height:6rem"></textarea>
+            </div>
+            <div>
+              <label class="admin-label" for="program-status">Status</label>
+              <select class="admin-select" id="program-status" name="status">
+                <option value="active">Aktif</option>
+                <option value="inactive">Nonaktif</option>
+              </select>
+            </div>
+            <div class="pt-2">
+              <button type="submit" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- MEDIA -->
+      <section class="admin-view" data-view-panel="media">
+        <div class="flex items-center justify-between mb-2">
+          <h1 class="font-serif-custom text-3xl">Media</h1>
+        </div>
+        <p class="text-sm text-muted mb-6 max-w-lg">Prototipe lokal — gambar disimpan di browser ini saja (belum ada penyimpanan terpusat). Gunakan gambar berukuran kecil.</p>
+        <label class="tap-target inline-flex items-center gap-2 border border-forest text-forest px-5 py-2.5 rounded-full text-sm font-medium hover:bg-forest hover:text-white transition cursor-pointer mb-8">
+          <span>+ Unggah Gambar</span>
+          <input type="file" accept="image/*" class="hidden" data-action="upload-media">
+        </label>
+        <div data-list="media" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+      </section>
+
+      <!-- PENGATURAN -->
+      <section class="admin-view" data-view-panel="pengaturan">
+        <h1 class="font-serif-custom text-3xl mb-8">Pengaturan</h1>
+        <form data-form="settings" class="max-w-2xl space-y-10">
+          <fieldset class="space-y-5">
+            <legend class="font-serif-custom text-lg mb-2">Identitas</legend>
+            <div>
+              <label class="admin-label" for="s-organization">Nama Organisasi</label>
+              <input class="admin-input" id="s-organization" name="organization">
+            </div>
+            <div>
+              <label class="admin-label" for="s-school">Nama Sekolah</label>
+              <input class="admin-input" id="s-school" name="school">
+            </div>
+          </fieldset>
+
+          <fieldset class="space-y-5">
+            <legend class="font-serif-custom text-lg mb-2">Hero</legend>
+            <div>
+              <label class="admin-label" for="s-hero-eyebrow">Eyebrow</label>
+              <input class="admin-input" id="s-hero-eyebrow" name="hero.eyebrow">
+            </div>
+            <div>
+              <label class="admin-label" for="s-hero-headline">Headline</label>
+              <textarea class="admin-textarea" id="s-hero-headline" name="hero.headline" style="min-height:4rem"></textarea>
+            </div>
+            <div>
+              <label class="admin-label" for="s-hero-description">Deskripsi</label>
+              <textarea class="admin-textarea" id="s-hero-description" name="hero.description" style="min-height:4rem"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label" for="s-hero-cta-label">Label CTA</label>
+                <input class="admin-input" id="s-hero-cta-label" name="hero.ctaLabel">
+              </div>
+              <div>
+                <label class="admin-label" for="s-hero-cta-url">URL CTA</label>
+                <input class="admin-input" id="s-hero-cta-url" name="hero.ctaUrl">
+              </div>
+            </div>
+            <div>
+              <label class="admin-label" for="s-hero-meta">Catatan Pertemuan</label>
+              <input class="admin-input" id="s-hero-meta" name="hero.meetingNote">
+            </div>
+          </fieldset>
+
+          <fieldset class="space-y-5">
+            <legend class="font-serif-custom text-lg mb-2">Kontak</legend>
+            <div>
+              <label class="admin-label" for="s-address">Alamat</label>
+              <input class="admin-input" id="s-address" name="contact.address">
+            </div>
+            <div>
+              <label class="admin-label" for="s-email">Email</label>
+              <input class="admin-input" id="s-email" name="contact.email" type="email" placeholder="opsional">
+            </div>
+          </fieldset>
+
+          <fieldset class="space-y-5">
+            <legend class="font-serif-custom text-lg mb-2">Sosial Media</legend>
+            <div>
+              <label class="admin-label" for="s-instagram">URL Instagram</label>
+              <input class="admin-input" id="s-instagram" name="social.instagram" placeholder="https://instagram.com/...">
+            </div>
+            <div>
+              <label class="admin-label" for="s-whatsapp">URL WhatsApp</label>
+              <input class="admin-input" id="s-whatsapp" name="social.whatsapp" placeholder="https://wa.me/...">
+            </div>
+          </fieldset>
+
+          <button type="submit" class="tap-target bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition">Simpan Pengaturan</button>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Media picker modal -->
+  <div id="media-picker" class="admin-modal-backdrop hidden" role="dialog" aria-modal="true" aria-label="Pilih media">
+    <div class="bg-ivory w-full md:max-w-xl md:rounded-xl rounded-t-xl p-6 max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-serif-custom text-xl">Pilih Gambar</h2>
+        <button type="button" class="tap-target text-muted hover:text-forest" data-action="close-media-picker" aria-label="Tutup">&times;</button>
+      </div>
+      <div data-list="media-picker-grid" class="grid grid-cols-3 gap-3"></div>
+      <p class="text-sm text-muted mt-4" data-empty="media-picker">Belum ada gambar. Unggah dari menu Media terlebih dahulu.</p>
+    </div>
+  </div>
+
+  <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
+
+  <script src="/js/data.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

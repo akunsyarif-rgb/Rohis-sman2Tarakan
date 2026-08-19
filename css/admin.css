@@ -1,0 +1,158 @@
+/*
+  Admin workspace styles. Reuses the same design tokens as the public
+  site (see css/style.css) — the admin should feel like the same
+  organization's tool, not a separate SaaS product.
+*/
+
+body[data-page="kelola"] {
+  background-color: var(--color-ivory);
+}
+
+.admin-input,
+.admin-textarea,
+.admin-select {
+  width: 100%;
+  border: 1px solid var(--color-line);
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  font-family: var(--font-ui);
+  color: var(--color-charcoal);
+  transition: border-color 150ms ease;
+}
+
+.admin-input:focus,
+.admin-textarea:focus,
+.admin-select:focus {
+  border-color: var(--color-forest);
+  outline: none;
+}
+
+.admin-textarea {
+  min-height: 10rem;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.admin-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  margin-bottom: 0.4rem;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  min-height: 44px;
+}
+
+.admin-nav-link:hover {
+  background-color: var(--color-surface);
+  color: var(--color-charcoal);
+}
+
+.admin-nav-link.is-active {
+  background-color: var(--color-forest);
+  color: white;
+}
+
+.admin-view {
+  display: none;
+}
+
+.admin-view.is-active {
+  display: block;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+.admin-badge.status-published {
+  background-color: #234233;
+  color: white;
+}
+
+.admin-badge.status-draft {
+  background-color: var(--color-surface);
+  color: var(--color-muted);
+  border: 1px solid var(--color-line);
+}
+
+.admin-badge.status-active {
+  background-color: #234233;
+  color: white;
+}
+
+.admin-badge.status-inactive {
+  background-color: var(--color-surface);
+  color: var(--color-muted);
+  border: 1px solid var(--color-line);
+}
+
+.admin-row {
+  border-top: 1px solid var(--color-line);
+}
+
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 33, 31, 0.5);
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 60;
+}
+
+.admin-modal-backdrop:not(.hidden) {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .admin-modal-backdrop {
+    align-items: center;
+  }
+}
+
+.admin-toast {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-charcoal);
+  color: white;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  z-index: 80;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.admin-toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-toast {
+    transition: none;
+  }
+}
