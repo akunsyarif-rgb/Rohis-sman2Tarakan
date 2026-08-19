@@ -1,0 +1,163 @@
+/*
+  Rohis SMADA Tarakan — design tokens & shared styles.
+  Color/typography tokens are also mirrored into the Tailwind config
+  (see js/tailwind-config.js) so both utility classes and plain CSS
+  can reference the same palette.
+*/
+
+:root {
+  --color-forest: #234233;
+  --color-ivory: #FBFBF9;
+  --color-charcoal: #1E211F;
+  --color-muted: #6E736F;
+  --color-line: #E5E3DE;
+  --color-surface: #F4F3EF;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-ui);
+  background-color: var(--color-ivory);
+  color: var(--color-charcoal);
+}
+
+.font-serif-custom {
+  font-family: var(--font-display);
+}
+
+/* Visible focus state for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-forest);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Minimum comfortable touch target on interactive controls */
+.tap-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ---------------------------------------------------------------- */
+/* Scroll-reveal system                                              */
+/* ---------------------------------------------------------------- */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 600ms var(--ease-editorial), transform 600ms var(--ease-editorial);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------------------- */
+/* Navbar                                                             */
+/* ---------------------------------------------------------------- */
+
+.site-nav {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  transition: background-color 400ms var(--ease-editorial), border-color 400ms var(--ease-editorial);
+}
+
+.site-nav.is-scrolled {
+  background-color: rgba(251, 251, 249, 0.92);
+  backdrop-filter: saturate(120%) blur(6px);
+  border-bottom-color: var(--color-line);
+}
+
+/* ---------------------------------------------------------------- */
+/* Image hover                                                       */
+/* ---------------------------------------------------------------- */
+
+.media-frame {
+  overflow: hidden;
+}
+
+.media-frame img {
+  transition: transform 700ms var(--ease-editorial);
+}
+
+.media-frame:hover img {
+  transform: scale(1.03);
+}
+
+/* ---------------------------------------------------------------- */
+/* Line clamp helpers                                                */
+/* ---------------------------------------------------------------- */
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------- */
+/* Skip link                                                         */
+/* ---------------------------------------------------------------- */
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  z-index: 100;
+  background: var(--color-forest);
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 0.5rem 0;
+}
+
+.skip-link:focus {
+  left: 0;
+  top: 0;
+}
+
+/* ---------------------------------------------------------------- */
+/* Reduced motion                                                    */
+/* ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .media-frame img,
+  .site-nav {
+    transition: none;
+  }
+
+  .media-frame:hover img {
+    transform: none;
+  }
+}

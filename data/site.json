@@ -1,0 +1,32 @@
+{
+  "organization": "Rohis SMADA Tarakan",
+  "school": "SMAN 2 Tarakan",
+  "hero": {
+    "eyebrow": "Ruang Tumbuh & Belajar",
+    "headline": "Menemukan makna, merawat nalar, dan mempererat ukhuwah.",
+    "description": "Wadah eksplorasi keislaman siswa-siswi SMAN 2 Tarakan yang inklusif, kritis, dan berakar pada nilai-nilai kebaikan.",
+    "ctaLabel": "Gabung Bersama Kami",
+    "ctaUrl": "#kontak",
+    "meetingNote": "Pertemuan rutin setiap Jumat",
+    "image": ""
+  },
+  "about": {
+    "eyebrow": "01 / Tentang Kami",
+    "lead": "Bukan sekadar tempat berkumpul.",
+    "body": "Rohis SMAN 2 Tarakan adalah ruang bagi pelajar untuk belajar memahami agama, mengembangkan kepedulian, dan membangun ukhuwah melalui kehidupan sekolah sehari-hari."
+  },
+  "join": {
+    "eyebrow": "05 / Bergabung",
+    "headline": "Ada ruang untukmu di sini. Belajar. Bertumbuh. Berbuat baik bersama.",
+    "ctaLabel": "Bergabung dengan Rohis",
+    "ctaUrl": "#kontak"
+  },
+  "contact": {
+    "address": "Tarakan, Kalimantan Utara",
+    "email": ""
+  },
+  "social": {
+    "instagram": "",
+    "whatsapp": ""
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "kajian-tematik",
+    "number": "01",
+    "title": "Kajian Tematik",
+    "description": "Diskusi santai seputar isu kontemporer, fiqih praktis, dan pembinaan karakter pemuda.",
+    "status": "active",
+    "order": 1
+  },
+  {
+    "id": "aksi-sosial",
+    "number": "02",
+    "title": "Aksi Sosial",
+    "description": "Penyaluran bantuan, program berbagi berkah, dan kepedulian lingkungan sekitar sekolah.",
+    "status": "active",
+    "order": 2
+  },
+  {
+    "id": "literasi-media",
+    "number": "03",
+    "title": "Literasi & Media",
+    "description": "Penerbitan buletin berkala, dokumentasi dakwah visual, dan penulisan reflektif.",
+    "status": "active",
+    "order": 3
+  }
+]
