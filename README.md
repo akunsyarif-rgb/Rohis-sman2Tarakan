@@ -20,7 +20,8 @@ Website Rohis SMAN 2 Tarakan. Static site (HTML + Tailwind CDN), tanpa build ste
 │   ├── site.json           Identitas organisasi, hero, kontak, sosial media
 │   ├── programs.json       Program kerja (Kajian Tematik, Aksi Sosial, dst.)
 │   ├── activities.json     Kegiatan
-│   └── articles.json       Tulisan / artikel
+│   ├── articles.json       Tulisan / artikel
+│   └── users.json          Akun login /kelola/ (username + password hash + role)
 │
 ├── css/
 │   ├── style.css           Design tokens + animasi (scroll reveal, navbar, dst.)
@@ -30,6 +31,7 @@ Website Rohis SMAN 2 Tarakan. Static site (HTML + Tailwind CDN), tanpa build ste
 │   ├── data.js              ContentRepository — satu-satunya jalur akses data
 │   ├── app.js                Rendering & interaksi situs publik
 │   ├── admin.js              Logika admin workspace (CRUD, preview, settings)
+│   ├── auth.js                Login gate + sesi admin workspace (lihat di bawah)
 │   └── tailwind-config.js    Design tokens Tailwind (warna & font bersama)
 │
 └── .github/
@@ -81,9 +83,16 @@ Tidak ada kode UI yang perlu disentuh.
 
 ## Admin Workspace (`/kelola/`)
 
-**Ini adalah prototipe lokal/statis, bukan sistem produksi.** Tidak ada autentikasi,
-tidak ada password hard-coded, tidak ada backend. Siapa pun yang membuka `/kelola/`
-di browser mereka bisa mengedit — perubahan hanya tersimpan di browser itu.
+**Ini adalah prototipe lokal/statis, bukan sistem produksi.** Tidak ada backend
+sungguhan. `/kelola/` kini dikunci layar login (lihat `js/auth.js`), tapi karena
+verifikasinya berjalan di browser dan seluruh kode bisa dibaca lewat "View Source",
+ini **bukan** perlindungan yang aman terhadap penyerang yang serius — anggap ini
+sebagai pintu, bukan brankas.
+
+- Password akun tidak pernah disimpan sebagai teks polos — di-hash (SHA-256 + salt)
+  lewat `ContentRepository.saveUser()` sebelum ditulis ke `localStorage`/`data/users.json`.
+- Akun admin bawaan (di `data/users.json`): username `admin`, password `admin123`.
+  **Ganti password ini lewat menu Pengguna segera setelah login pertama kali.**
 
 Fitur:
 
@@ -93,7 +102,9 @@ Fitur:
 - **Program** — tambah/edit/hapus/aktifkan-nonaktifkan; dibaca langsung oleh beranda.
 - **Media** — unggah gambar (disimpan sebagai data URL di `localStorage`, maksimum
   ~350KB per gambar untuk fase prototipe ini), pilih gambar untuk cover kegiatan/tulisan.
-- **Pengaturan** — ubah identitas organisasi, teks hero, dan tautan kontak/sosial media.
+- **Pengguna** *(khusus role Admin)* — tambah/edit/hapus akun, atur nama/username/password/role
+  (`admin` atau `editor`). Role Editor tidak bisa membuka Pengguna maupun Pengaturan.
+- **Pengaturan** *(khusus role Admin)* — ubah identitas organisasi, teks hero, dan tautan kontak/sosial media.
 
 Preview membuka halaman publik yang sama persis (bukan tampilan admin) di tab baru,
 membaca draft sementara dari `sessionStorage` — belum tersimpan sampai ditekan Simpan.

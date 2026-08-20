@@ -17,6 +17,7 @@
     activities: 'rohis:activities',
     articles: 'rohis:articles',
     media: 'rohis:media',
+    users: 'rohis:users',
   };
 
   const SEED_PATHS = {
@@ -24,6 +25,7 @@
     programs: '/data/programs.json',
     activities: '/data/activities.json',
     articles: '/data/articles.json',
+    users: '/data/users.json',
   };
 
   function readCache(key) {
@@ -81,6 +83,32 @@
       n += 1;
     }
     return candidate;
+  }
+
+  // ---- Password hashing (client-side only — see README: this is a
+  // static prototype with no server, so this is not real protection
+  // against anyone with access to the browser devtools or source) -----
+  function bytesToHex(bytes) {
+    return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function randomSalt() {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    return bytesToHex(bytes);
+  }
+
+  async function sha256Hex(text) {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return bytesToHex(new Uint8Array(digest));
+  }
+
+  async function hashPassword(password, salt) {
+    return sha256Hex(`${salt}:${password}`);
+  }
+
+  async function verifyPassword(password, salt, hash) {
+    return (await hashPassword(password, salt)) === hash;
   }
 
   class LocalStorageRepository {
@@ -207,6 +235,65 @@
       const list = await this.getMedia();
       const next = list.filter((m) => m.id !== id);
       writeCache(STORAGE_KEYS.media, next);
+    }
+
+    // ---- Users (login + role for the /kelola/ workspace) -----------------
+    async getUsers() {
+      return loadCollection('users');
+    }
+
+    async getUser(id) {
+      const list = await this.getUsers();
+      return list.find((u) => u.id === id) || null;
+    }
+
+    async getUserByUsername(username) {
+      const list = await this.getUsers();
+      const needle = String(username || '').trim().toLowerCase();
+      return list.find((u) => u.username.toLowerCase() === needle) || null;
+    }
+
+    /**
+     * `user.password`, if present, is a plaintext password to (re)set —
+     * it is hashed here and never stored as-is. Omit it on an edit to
+     * keep the existing password.
+     */
+    async saveUser(user) {
+      const list = await this.getUsers();
+      const isNew = !user.id;
+      const plainPassword = user.password;
+      delete user.password;
+
+      if (isNew) {
+        user.id = makeId(list, user.username);
+        user.createdAt = new Date().toISOString();
+      }
+      if (plainPassword) {
+        user.passwordSalt = randomSalt();
+        user.passwordHash = await hashPassword(plainPassword, user.passwordSalt);
+      }
+
+      const idx = list.findIndex((u) => u.id === user.id);
+      if (idx >= 0) {
+        list[idx] = { ...list[idx], ...user };
+      } else {
+        list.push(user);
+      }
+      writeCache(STORAGE_KEYS.users, list);
+      return user;
+    }
+
+    async deleteUser(id) {
+      const list = await this.getUsers();
+      const next = list.filter((u) => u.id !== id);
+      writeCache(STORAGE_KEYS.users, next);
+    }
+
+    async verifyUserPassword(username, password) {
+      const user = await this.getUserByUsername(username);
+      if (!user) return null;
+      const ok = await verifyPassword(password, user.passwordSalt, user.passwordHash);
+      return ok ? user : null;
     }
 
     // ---- Prototype utilities ----------------------------------------------

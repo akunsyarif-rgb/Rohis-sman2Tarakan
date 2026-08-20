@@ -4,8 +4,11 @@
  * so swapping the localStorage-backed repository for a Supabase one
  * later does not require touching this file's structure.
  *
- * This is a local/static prototype: there is no authentication and
- * no server. Changes made here are stored in this browser only.
+ * This is a local/static prototype: there is no server. Login (see
+ * js/auth.js) is a client-side gate against the users seeded in
+ * data/users.json / localStorage, not real protection — anyone who
+ * reads the page source can bypass it. Changes made here are stored
+ * in this browser only.
  */
 
 (function () {
@@ -52,15 +55,18 @@
   // --------------------------------------------------------------------
   // View routing
   // --------------------------------------------------------------------
-  const VIEWS = ['dashboard', 'kegiatan', 'tulisan', 'program', 'media', 'pengaturan'];
-
-  function currentView() {
-    const hash = (window.location.hash || '#dashboard').replace('#', '');
-    return VIEWS.includes(hash) ? hash : 'dashboard';
-  }
+  const VIEWS = ['dashboard', 'kegiatan', 'tulisan', 'program', 'media', 'pengguna', 'pengaturan'];
+  const ADMIN_ONLY_VIEWS = ['pengguna', 'pengaturan'];
 
   function renderView() {
-    const view = currentView();
+    const requestedHash = (window.location.hash || '#dashboard').replace('#', '');
+    const requestedView = VIEWS.includes(requestedHash) ? requestedHash : 'dashboard';
+    const view = ADMIN_ONLY_VIEWS.includes(requestedView) && !AuthSession.isAdmin() ? 'dashboard' : requestedView;
+    if (view !== requestedHash) {
+      window.location.hash = view;
+      return;
+    }
+
     qsa('[data-view-panel]').forEach((panel) => {
       panel.classList.toggle('is-active', panel.dataset.viewPanel === view);
     });
@@ -82,6 +88,7 @@
     if (view === 'tulisan') { showSubview('tulisan', 'tulisan-list'); loadArticleList(); }
     if (view === 'program') { showSubview('program', 'program-list'); loadProgramList(); }
     if (view === 'media') loadMediaList();
+    if (view === 'pengguna') { showSubview('pengguna', 'pengguna-list'); loadUserList(); }
     if (view === 'pengaturan') loadSettingsForm();
   }
 
@@ -554,6 +561,122 @@
   }
 
   // --------------------------------------------------------------------
+  // Pengguna (Users: login credentials + role for /kelola/)
+  // --------------------------------------------------------------------
+  function roleBadge(role) {
+    return `<span class="admin-role-badge role-${role}">${role === 'admin' ? 'Admin' : 'Editor'}</span>`;
+  }
+
+  const loadUserList = latestOnly(async (isCurrent) => {
+    const users = await ContentRepository.getUsers();
+    if (!isCurrent()) return;
+    const current = AuthSession.getCurrentUser();
+    const list = qs('[data-list="users"]');
+    list.innerHTML = users.length
+      ? users
+          .map(
+            (u) => `
+        <div class="admin-row py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1">${roleBadge(u.role)}${u.id === current?.id ? '<span class="text-xs text-muted">(Anda)</span>' : ''}</div>
+            <p class="font-medium truncate">${u.name}</p>
+            <p class="text-xs text-muted truncate">@${u.username}</p>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${u.id}">Edit</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${u.id}">Hapus</button>
+          </div>
+        </div>`
+          )
+          .join('')
+      : '<p class="text-sm text-muted py-8">Belum ada pengguna.</p>';
+
+    qsa('[data-edit]', list).forEach((btn) => btn.addEventListener('click', () => openUserForm(btn.dataset.edit)));
+    qsa('[data-delete]', list).forEach((btn) =>
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.delete;
+        if (id === current?.id) {
+          toast('Tidak bisa menghapus akun yang sedang digunakan.');
+          return;
+        }
+        const target = users.find((u) => u.id === id);
+        const otherAdmins = users.filter((u) => u.role === 'admin' && u.id !== id);
+        if (target?.role === 'admin' && otherAdmins.length === 0) {
+          toast('Tidak bisa menghapus admin terakhir.');
+          return;
+        }
+        if (confirm('Hapus pengguna ini?')) {
+          await ContentRepository.deleteUser(id);
+          toast('Pengguna dihapus.');
+          loadUserList();
+        }
+      })
+    );
+  });
+
+  async function openUserForm(id) {
+    const form = qs('[data-form="user"]');
+    form.reset();
+    qs('[data-form-title="pengguna"]').textContent = id ? 'Edit Pengguna' : 'Pengguna Baru';
+    qs('[data-password-hint]').textContent = id
+      ? 'Kosongkan untuk tidak mengubah password.'
+      : 'Wajib diisi untuk pengguna baru.';
+    form.elements.password.required = !id;
+
+    if (id) {
+      const user = await ContentRepository.getUser(id);
+      if (user) {
+        form.elements.id.value = user.id;
+        form.elements.name.value = user.name || '';
+        form.elements.username.value = user.username || '';
+        form.elements.role.value = user.role || 'editor';
+      }
+    }
+    showSubview('pengguna', 'pengguna-form');
+  }
+
+  function initUserForm() {
+    const form = qs('[data-form="user"]');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = readForm(form);
+      if (!data.id && !data.password) {
+        toast('Password wajib diisi untuk pengguna baru.');
+        return;
+      }
+
+      const users = await ContentRepository.getUsers();
+      const usernameTaken = users.find(
+        (u) => u.username.toLowerCase() === data.username.trim().toLowerCase() && u.id !== data.id
+      );
+      if (usernameTaken) {
+        toast('Username sudah digunakan.');
+        return;
+      }
+      if (data.id && data.role !== 'admin') {
+        const original = users.find((u) => u.id === data.id);
+        const otherAdmins = users.filter((u) => u.role === 'admin' && u.id !== data.id);
+        if (original?.role === 'admin' && otherAdmins.length === 0) {
+          toast('Tidak bisa mengubah role admin terakhir.');
+          return;
+        }
+      }
+
+      const payload = { id: data.id || undefined, name: data.name, username: data.username, role: data.role };
+      if (data.password) payload.password = data.password;
+      const saved = await ContentRepository.saveUser(payload);
+      toast('Pengguna disimpan.');
+
+      const current = AuthSession.getCurrentUser();
+      if (current && current.id === saved.id) {
+        AuthSession.updateCurrentUser({ name: saved.name, username: saved.username, role: saved.role });
+        applyCurrentUser();
+      }
+      renderView();
+    });
+  }
+
+  // --------------------------------------------------------------------
   // Pengaturan (Settings)
   // --------------------------------------------------------------------
   function getPath(obj, path) {
@@ -638,6 +761,7 @@
     qsa('[data-action="new-program"]').forEach((btn) =>
       btn.addEventListener('click', () => openProgramForm(null))
     );
+    qsa('[data-action="new-user"]').forEach((btn) => btn.addEventListener('click', () => openUserForm(null)));
     qsa('[data-action="back-to-list"]').forEach((btn) =>
       btn.addEventListener('click', () => showSubview(btn.dataset.target, `${btn.dataset.target}-list`))
     );
@@ -655,19 +779,80 @@
   }
 
   // --------------------------------------------------------------------
+  // Login gate
+  // --------------------------------------------------------------------
+  function showAdminShell() {
+    qs('#login-screen').classList.add('hidden');
+    qs('#admin-shell').classList.remove('hidden');
+  }
+
+  function showLoginScreen() {
+    qs('#admin-shell').classList.add('hidden');
+    qs('#login-screen').classList.remove('hidden');
+  }
+
+  function applyCurrentUser() {
+    const user = AuthSession.getCurrentUser();
+    if (!user) return;
+    qs('[data-current-user-name]').textContent = user.name;
+    qs('[data-current-user-role]').textContent = user.role === 'admin' ? 'Admin' : 'Editor';
+    qsa('[data-admin-only]').forEach((el) => el.classList.toggle('hidden', user.role !== 'admin'));
+  }
+
+  function startAdminApp() {
+    showAdminShell();
+    applyCurrentUser();
+    renderView();
+  }
+
+  function initLoginForm() {
+    const form = qs('#login-form');
+    const errorEl = qs('#login-error');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = readForm(form);
+      const session = await AuthSession.login(data.username, data.password);
+      if (!session) {
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      errorEl.classList.add('hidden');
+      form.reset();
+      startAdminApp();
+    });
+  }
+
+  function initLogout() {
+    qs('#logout-button').addEventListener('click', () => {
+      AuthSession.logout();
+      window.location.hash = 'dashboard';
+      showLoginScreen();
+      qs('#login-username').focus();
+    });
+  }
+
+  // --------------------------------------------------------------------
   // Boot
   // --------------------------------------------------------------------
   document.addEventListener('DOMContentLoaded', () => {
+    initLoginForm();
+    initLogout();
     initSidebarToggle();
     initQuickActions();
     initActivityForm();
     initArticleForm();
     initProgramForm();
+    initUserForm();
     initMediaUpload();
     initMediaPicker();
     initSettingsForm();
     initDataExport();
     window.addEventListener('hashchange', renderView);
-    renderView();
+
+    if (AuthSession.isAuthenticated()) {
+      startAdminApp();
+    } else {
+      showLoginScreen();
+    }
   });
 })();
