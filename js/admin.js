@@ -9,25 +9,23 @@
  */
 
 (function () {
-  // Treat content values as untrusted. Sanitize generated markup before it
-  // reaches the live DOM; keep only the HTML elements/attributes this site uses.
+  // Sanitize content-generated markup before inserting it into the live DOM.
   function sanitizeHTML(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(String(html), 'text/html');
+    const doc = new DOMParser().parseFromString(String(html), 'text/html');
     doc.querySelectorAll('script, iframe, object, embed, form, base, meta, link, style, svg, math').forEach((el) => el.remove());
     doc.querySelectorAll('*').forEach((el) => {
       Array.from(el.attributes).forEach((attr) => {
         const name = attr.name.toLowerCase();
         const value = attr.value.trim();
-        if (name.startsWith('on') || name === 'srcdoc' || name === 'formaction' || name === 'style' || name === 'srcset') {
+        if (name.startsWith('on') || ['srcdoc', 'formaction', 'style', 'srcset'].includes(name)) {
           el.removeAttribute(attr.name);
           return;
         }
-        if (name === 'href' || name === 'src' || name === 'xlink:href') {
-          const isImageData = name === 'src' && /^data:image\/(png|jpeg|gif|webp);base64,/i.test(value);
-          const safeScheme = /^(https?:|mailto:|tel:)/i.test(value);
-          const safeRelative = /^(\/|\.\/|\.\.\/|#|\?)/.test(value) || value === '';
-          if (!(isImageData || safeScheme || safeRelative)) el.removeAttribute(attr.name);
+        if (['href', 'src', 'xlink:href'].includes(name)) {
+          const imageData = name === 'src' && /^data:image\/(png|jpeg|gif|webp);base64,/i.test(value);
+          const allowedScheme = /^(https?:|mailto:|tel:)/i.test(value);
+          const relative = value === '' || /^(\.\/|\.\.\/|\/[^/]|#|\?)/.test(value);
+          if (!(imageData || allowedScheme || relative)) el.removeAttribute(attr.name);
         }
       });
     });
@@ -293,7 +291,7 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${formatDate(a.date)}</span></div>
             <p class="font-medium truncate">${a.title}</p>
-            <p class="text-xs text-muted truncate">${a.author || ''} &middot); ${a.category || ''}</p>
+            <p class="text-xs text-muted truncate">${a.author || ''} &middot; ${a.category || ''}</p>
           </div>
           <div class="flex gap-2 shrink-0">
             <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${a.id}">Edit</button>
@@ -303,7 +301,7 @@
         </div>`
           )
           .join('')
-      : '<p class="text-sm text-muted py-8">Belum ada tulisan. Klik "+ Tulisan Baru" untuk mulai.</p>';
+      : '<p class="text-sm text-muted py-8">Belum ada tulisan. Klik "+ Tulisan Baru" untuk mulai.</p>');
 
     qsa('[data-edit]', list).forEach((btn) => btn.addEventListener('click', () => openArticleForm(btn.dataset.edit)));
     qsa('[data-preview]', list).forEach((btn) => btn.addEventListener('click', () => previewSavedArticle(btn.dataset.preview)));
