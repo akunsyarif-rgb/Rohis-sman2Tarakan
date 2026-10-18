@@ -395,7 +395,7 @@
       return;
     }
 
-    document.title = `${esc(activity.title)} — Rohis SMADA Tarakan`;
+    document.title = `${activity.title} — Rohis Al Ihsan`;
 
     const gallery = Array.isArray(activity.gallery) ? activity.gallery : [];
     root.innerHTML = `
@@ -434,7 +434,7 @@
       return;
     }
 
-    document.title = `${esc(article.title)} — Rohis SMADA Tarakan`;
+    document.title = `${article.title} — Rohis Al Ihsan`;
 
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
