@@ -9,6 +9,31 @@
  */
 
 (function () {
+  // Treat content values as untrusted. Sanitize generated markup before it
+  // reaches the live DOM; keep only the HTML elements/attributes this site uses.
+  function sanitizeHTML(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(String(html), 'text/html');
+    doc.querySelectorAll('script, iframe, object, embed, form, base, meta, link, style, svg, math').forEach((el) => el.remove());
+    doc.querySelectorAll('*').forEach((el) => {
+      Array.from(el.attributes).forEach((attr) => {
+        const name = attr.name.toLowerCase();
+        const value = attr.value.trim();
+        if (name.startsWith('on') || name === 'srcdoc' || name === 'formaction' || name === 'style' || name === 'srcset') {
+          el.removeAttribute(attr.name);
+          return;
+        }
+        if (name === 'href' || name === 'src' || name === 'xlink:href') {
+          const isImageData = name === 'src' && /^data:image\/(png|jpeg|gif|webp);base64,/i.test(value);
+          const safeScheme = /^(https?:|mailto:|tel:)/i.test(value);
+          const safeRelative = /^(\/|\.\/|\.\.\/|#|\?)/.test(value) || value === '';
+          if (!(isImageData || safeScheme || safeRelative)) el.removeAttribute(attr.name);
+        }
+      });
+    });
+    return doc.body.innerHTML;
+  }
+
   const qs = (sel, root) => (root || document).querySelector(sel);
   const qsa = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
@@ -117,7 +142,7 @@
       .slice(0, 6);
 
     const list = qs('[data-list="recent-activity"]');
-    list.innerHTML = recent.length
+    list.innerHTML = sanitizeHTML(recent.length
       ? recent
           .map(
             (item) => `
@@ -130,7 +155,7 @@
         </button>`
           )
           .join('')
-      : '<p class="text-sm text-muted py-4">Belum ada aktivitas.</p>';
+      : '<p class="text-sm text-muted py-4">Belum ada aktivitas.</p>');
 
     qsa('[data-open]', list).forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -152,7 +177,7 @@
     const activities = await ContentRepository.getActivities();
     if (!isCurrent()) return;
     const list = qs('[data-list="activities"]');
-    list.innerHTML = activities.length
+    list.innerHTML = sanitizeHTML(activities.length
       ? activities
           .map(
             (a) => `
@@ -170,7 +195,7 @@
         </div>`
           )
           .join('')
-      : '<p class="text-sm text-muted py-8">Belum ada kegiatan. Klik "+ Tambah Kegiatan" untuk mulai.</p>';
+      : '<p class="text-sm text-muted py-8">Belum ada kegiatan. Klik "+ Tambah Kegiatan" untuk mulai.</p>');
 
     qsa('[data-edit]', list).forEach((btn) => btn.addEventListener('click', () => openActivityForm(btn.dataset.edit)));
     qsa('[data-preview]', list).forEach((btn) => btn.addEventListener('click', () => previewSavedActivity(btn.dataset.preview)));
@@ -260,7 +285,7 @@
     const articles = await ContentRepository.getArticles();
     if (!isCurrent()) return;
     const list = qs('[data-list="articles"]');
-    list.innerHTML = articles.length
+    list.innerHTML = sanitizeHTML(articles.length
       ? articles
           .map(
             (a) => `
@@ -268,7 +293,7 @@
           <div class="min-w-0">
             <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${formatDate(a.date)}</span></div>
             <p class="font-medium truncate">${a.title}</p>
-            <p class="text-xs text-muted truncate">${a.author || ''} &middot; ${a.category || ''}</p>
+            <p class="text-xs text-muted truncate">${a.author || ''} &middot); ${a.category || ''}</p>
           </div>
           <div class="flex gap-2 shrink-0">
             <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${a.id}">Edit</button>
@@ -369,7 +394,7 @@
     const programs = (await ContentRepository.getPrograms()).sort((a, b) => (a.order || 0) - (b.order || 0));
     if (!isCurrent()) return;
     const list = qs('[data-list="programs"]');
-    list.innerHTML = programs.length
+    list.innerHTML = sanitizeHTML(programs.length
       ? programs
           .map(
             (p) => `
@@ -390,7 +415,7 @@
         </div>`
           )
           .join('')
-      : '<p class="text-sm text-muted py-8">Belum ada program.</p>';
+      : '<p class="text-sm text-muted py-8">Belum ada program.</p>');
 
     qsa('[data-edit]', list).forEach((btn) => btn.addEventListener('click', () => openProgramForm(btn.dataset.edit)));
     qsa('[data-toggle]', list).forEach((btn) =>
@@ -480,9 +505,9 @@
     const media = await ContentRepository.getMedia();
     if (!isCurrent()) return;
     const list = qs('[data-list="media"]');
-    list.innerHTML = media.length
+    list.innerHTML = sanitizeHTML(media.length
       ? media.map((m) => mediaThumbHTML(m, false)).join('')
-      : '<p class="text-sm text-muted col-span-full py-8">Belum ada gambar yang diunggah.</p>';
+      : '<p class="text-sm text-muted col-span-full py-8">Belum ada gambar yang diunggah.</p>');
 
     qsa('[data-delete-media]', list).forEach((btn) =>
       btn.addEventListener('click', async () => {
@@ -527,7 +552,7 @@
         const media = await ContentRepository.getMedia();
         const grid = qs('[data-list="media-picker-grid"]');
         const empty = qs('[data-empty="media-picker"]');
-        grid.innerHTML = media.map((m) => mediaThumbHTML(m, true)).join('');
+        grid.innerHTML = sanitizeHTML(media.map((m) => mediaThumbHTML(m, true)).join(''));
         empty.classList.toggle('hidden', media.length > 0);
         qsa('[data-select]', grid).forEach((img) => {
           img.addEventListener('click', () => {
