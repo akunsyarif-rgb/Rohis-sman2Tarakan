@@ -400,7 +400,7 @@
     const gallery = Array.isArray(activity.gallery) ? activity.gallery : [];
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
+      <a href="./kegiatan.html" class="inline-flex items-center gap-1 text-sm font-semibold text-leaf hover:text-forest mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
       <div class="flex items-center gap-3 text-xs text-muted mb-4" data-reveal>
         <span class="chip">${esc(activity.category || 'Kegiatan')}</span>
         <span>&middot;</span>
@@ -408,11 +408,11 @@
       </div>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mb-8" data-reveal>${esc(activity.title)}</h1>
       <div class="media-frame mb-10" data-reveal>${activityCoverHTML(activity, 'aspect-[16/9] rounded-3xl')}</div>
-      <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${esc(activity.content || '')}</div>
+      <div class="card prose-content p-6 sm:p-10 text-charcoal leading-relaxed whitespace-pre-line" data-reveal>${esc(activity.content || '')}</div>
       ${
         gallery.length
           ? `<div class="mt-12 grid grid-cols-2 md:grid-cols-3 gap-3" data-reveal>${gallery
-              .map((src) => `<div class="media-frame"><img src="${esc(safeUrl(src))}" alt="" loading="lazy" class="w-full aspect-square object-cover rounded-lg"></div>`)
+              .map((src) => `<div class="media-frame"><img src="${esc(safeUrl(src))}" alt="" loading="lazy" class="w-full aspect-square object-cover rounded-2xl"></div>`)
               .join('')}</div>`
           : ''
       }
@@ -438,14 +438,14 @@
 
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
-      <span class="chip" data-reveal>${esc(article.category || 'Tulisan')}</span>
+      <a href="./tulisan.html" class="inline-flex items-center gap-1 text-sm font-semibold text-leaf hover:text-forest mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
+      <div class="mb-1" data-reveal><span class="chip">${esc(article.category || 'Tulisan')}</span></div>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${esc(article.title)}</h1>
-      <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${esc(article.author || 'Rohis')} &middot; ${esc(formatDate(article.date))}${
+      <p class="text-sm text-muted mb-8" data-reveal>Ditulis oleh ${esc(article.author || 'Rohis')} &middot; ${esc(formatDate(article.date))}${
       article.readTime ? ` &middot; ${esc(article.readTime)}` : ''
     }</p>
       ${safeUrl(article.cover) ? `<div class="media-frame mb-10" data-reveal><img src="${esc(safeUrl(article.cover))}" alt="${esc(article.title)}" class="w-full aspect-[16/9] object-cover rounded-3xl" loading="lazy"></div>` : ''}
-      <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${esc(article.content || '')}</div>
+      <div class="card prose-content p-6 sm:p-10 text-charcoal leading-relaxed whitespace-pre-line" data-reveal>${esc(article.content || '')}</div>
     `;
   }
 

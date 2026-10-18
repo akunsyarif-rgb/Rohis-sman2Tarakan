@@ -65,6 +65,17 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Short pages: keep the footer at the bottom of the viewport. */
+body:not([data-page="kelola"]) {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body:not([data-page="kelola"]) > main {
+  flex: 1 0 auto;
+}
+
 /* Visible focus state for keyboard navigation */
 a:focus-visible,
 button:focus-visible,
