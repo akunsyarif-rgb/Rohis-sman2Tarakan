@@ -1,5 +1,5 @@
 /**
- * Content layer for the Rohis SMADA Tarakan website.
+ * Content layer for the Rohis Al Ihsan website.
  *
  * Public pages and the admin workspace never touch localStorage or
  * fetch() directly — they only call `ContentRepository`. Today that

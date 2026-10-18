@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rohis SMADA Tarakan — Ruang Tumbuh & Belajar</title>
+  <title>Rohis Al Ihsan — Ruang Tumbuh & Belajar</title>
   <meta name="description" content="Wadah eksplorasi keislaman siswa-siswi SMAN 2 Tarakan yang inklusif, kritis, dan berakar pada nilai-nilai kebaikan.">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#234233">
+  <meta name="theme-color" content="#2F5D3A">
   <link rel="canonical" href="https://akunsyarif-rgb.github.io/Rohis-sman2Tarakan/">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="https://akunsyarif-rgb.github.io/Rohis-sman2Tarakan/assets/images/logo-rohis-sman2tarakan.png">
-  <meta property="og:title" content="Rohis SMADA Tarakan — Ruang Tumbuh & Belajar">
+  <meta property="og:image" content="https://akunsyarif-rgb.github.io/Rohis-sman2Tarakan/assets/images/hero-rumah-lamin.jpg">
+  <meta property="og:title" content="Rohis Al Ihsan — Ruang Tumbuh & Belajar">
   <meta property="og:description" content="Wadah eksplorasi keislaman siswa-siswi SMAN 2 Tarakan yang inklusif, kritis, dan berakar pada nilai-nilai kebaikan.">
   <meta property="og:url" content="https://akunsyarif-rgb.github.io/Rohis-sman2Tarakan/">
   <link rel="icon" type="image/png" href="./assets/images/logo-rohis-sman2tarakan.png">
   <link rel="stylesheet" href="./css/tailwind.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
   <noscript><style>[data-reveal]{opacity:1!important;transform:none!important;}</style></noscript>
 </head>
@@ -26,94 +26,168 @@
   <a class="skip-link" href="#main">Lewati ke konten utama</a>
 
   <!-- Navigasi -->
-  <nav id="site-nav" class="site-nav sticky top-0 z-40 border-b">
-    <div class="max-w-4xl mx-auto px-6 py-5 flex justify-between items-center">
-      <a href="./" class="flex items-center gap-3 font-semibold tracking-tight text-sm uppercase text-forest">
+  <nav id="site-nav" class="site-nav sticky top-3 z-40 px-4">
+    <div class="nav-pill max-w-5xl mx-auto pl-4 pr-3 py-2.5 flex justify-between items-center">
+      <a href="./" class="flex items-center gap-3 tracking-tight text-sm text-forest">
         <img src="./assets/images/logo-rohis-sman2tarakan.png" alt="" width="36" height="35" class="h-9 w-auto">
-        <span>Rohis SMADA Tarakan</span>
+        <span class="font-bold">Rohis Al Ihsan</span>
       </a>
-      <div class="hidden md:flex items-center gap-6 text-sm text-neutral-600">
-        <a href="#program" data-nav="home" class="hover:text-black transition">Program</a>
-        <a href="./kegiatan.html" data-nav="kegiatan" class="hover:text-black transition">Kegiatan</a>
-        <a href="./tulisan.html" data-nav="tulisan" class="hover:text-black transition">Tulisan</a>
-        <a href="./tentang.html" data-nav="tentang" class="hover:text-black transition">Tentang</a>
-        <a href="#kontak" class="hover:text-black transition">Kontak</a>
-        <a href="#kontak" class="bg-forest text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-black transition">Gabung</a>
+      <div class="hidden md:flex items-center gap-6 text-sm text-muted">
+        <a href="#program" data-nav="home" class="hover:text-forest transition">Program</a>
+        <a href="./kegiatan.html" data-nav="kegiatan" class="hover:text-forest transition">Kegiatan</a>
+        <a href="./tulisan.html" data-nav="tulisan" class="hover:text-forest transition">Tulisan</a>
+        <a href="./tentang.html" data-nav="tentang" class="hover:text-forest transition">Tentang</a>
+        <a href="#kontak" class="hover:text-forest transition">Kontak</a>
+        <a href="#kontak" class="btn-solid px-4 py-2 text-xs">Gabung</a>
       </div>
       <button id="nav-toggle" type="button" class="md:hidden tap-target flex items-center justify-center" aria-expanded="false" aria-controls="nav-menu" aria-label="Buka menu navigasi">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
-    <div id="nav-menu" class="hidden md:hidden flex-col gap-1 px-6 pb-6 text-sm">
+    <div id="nav-menu" class="nav-menu hidden md:hidden flex-col gap-1 max-w-5xl mx-auto mt-2 p-4 text-sm">
       <a href="#program" data-nav="home" class="tap-target flex items-center px-2 hover:text-forest">Program</a>
       <a href="./kegiatan.html" data-nav="kegiatan" class="tap-target flex items-center px-2 hover:text-forest">Kegiatan</a>
       <a href="./tulisan.html" data-nav="tulisan" class="tap-target flex items-center px-2 hover:text-forest">Tulisan</a>
       <a href="./tentang.html" data-nav="tentang" class="tap-target flex items-center px-2 hover:text-forest">Tentang</a>
       <a href="#kontak" class="tap-target flex items-center px-2 hover:text-forest">Kontak</a>
-      <a href="#kontak" class="mt-2 inline-flex items-center justify-center bg-forest text-white px-4 py-3 rounded-full text-sm font-medium">Gabung</a>
+      <a href="#kontak" class="btn-solid mt-2 px-4 py-3 text-sm">Gabung</a>
     </div>
   </nav>
 
   <main id="main">
     <!-- Hero -->
-    <header class="max-w-4xl mx-auto px-6 pt-16 sm:pt-20 pb-16">
-      <p class="text-xs uppercase tracking-widest text-forest font-semibold mb-4" data-field="hero-eyebrow" data-reveal></p>
-      <h1 class="font-serif-custom text-4xl sm:text-6xl font-normal leading-tight mb-6" data-field="hero-headline" data-reveal></h1>
-      <p class="text-neutral-600 max-w-xl text-lg leading-relaxed mb-8" data-field="hero-description" data-reveal></p>
-      <div class="flex flex-wrap items-center gap-4" data-reveal>
-        <a href="#kontak" data-field="hero-cta" class="tap-target inline-flex items-center bg-forest text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-black transition"></a>
-        <span class="text-xs text-neutral-500">&bull; <span data-field="hero-meta"></span></span>
+    <section class="px-4 mt-3">
+      <header class="hero max-w-5xl mx-auto px-6 sm:px-12 pt-16 sm:pt-24 pb-24 sm:pb-28" id="hero">
+        <svg class="hero-art" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+          <defs>
+            <g id="pine">
+              <rect x="-4" y="70" width="8" height="26" fill="#244A2E"/>
+              <polygon points="0,-40 26,0 -26,0" fill="#2C5A38" transform="translate(0,8)"/>
+              <polygon points="0,-20 32,30 -32,30" fill="#2C5A38" transform="translate(0,12)"/>
+              <polygon points="0,0 38,66 -38,66" fill="#2C5A38" transform="translate(0,6)"/>
+            </g>
+          </defs>
+          <path d="M0 470 C 180 400 320 430 470 400 C 640 366 760 420 900 390 C 1020 366 1110 400 1200 380 L1200 640 L0 640Z" fill="#8DB382" opacity=".75"/>
+          <path d="M0 520 C 160 470 300 500 460 480 C 640 456 800 510 980 478 C 1080 460 1150 480 1200 470 L1200 640 L0 640Z" fill="#5D9060"/>
+          <path d="M0 585 C 200 545 360 575 560 560 C 760 545 960 590 1200 555 L1200 640 L0 640Z" fill="#2F5D3A"/>
+          <g opacity=".95">
+            <use href="#pine" transform="translate(70 470) scale(1.6)"/>
+            <use href="#pine" transform="translate(170 500) scale(1.1)"/>
+            <use href="#pine" transform="translate(1110 465) scale(1.7)"/>
+            <use href="#pine" transform="translate(1020 505) scale(1.05)"/>
+            <use href="#pine" transform="translate(1160 520) scale(1.2)"/>
+          </g>
+        </svg>
+        <p class="hero-chip mb-6" data-reveal>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.5 2 8 0 5.5-4.8 10-10 10Z"/></svg>
+          <span data-field="hero-eyebrow"></span>
+        </p>
+        <h1 class="font-serif-custom text-4xl sm:text-6xl leading-[1.1] mb-5 max-w-2xl" data-field="hero-headline" data-reveal></h1>
+        <p class="max-w-xl text-base sm:text-lg leading-relaxed mb-8 text-white/90" data-field="hero-description" data-reveal></p>
+        <div class="flex flex-wrap items-center gap-3" data-reveal>
+          <a href="#kontak" data-field="hero-cta" class="btn-solid tap-target px-6 py-2.5 text-sm"></a>
+          <a href="./tentang.html" class="btn-ghost tap-target px-6 py-2.5 text-sm">Kenali Kami</a>
+        </div>
+      </header>
+
+      <!-- Info bar -->
+      <div class="quick-bar max-w-5xl" data-reveal>
+        <div class="qb-field">
+          <svg class="shrink-0" style="color:var(--color-leaf)" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.5 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6.2C9.6 14.2 12 13 13 12"/></svg>
+          <span><span class="qb-label">Pertemuan</span><span data-field="hero-meta"></span></span>
+        </div>
+        <div class="qb-field">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="min-w-0"><span class="qb-label">Lokasi</span><span data-field="hero-location" class="block truncate"></span></span>
+        </div>
+        <a href="#kontak" class="btn-solid tap-target px-7 py-3 text-sm">Gabung</a>
       </div>
-    </header>
+    </section>
 
     <!-- Tentang Singkat -->
-    <section id="tentang" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
-      <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-6" data-field="about-eyebrow" data-reveal></h2>
-      <p class="font-serif-custom text-2xl sm:text-3xl leading-snug mb-3 max-w-2xl" data-field="about-lead" data-reveal></p>
-      <p class="text-neutral-600 leading-relaxed max-w-xl" data-field="about-body" data-reveal></p>
-      <a href="./tentang.html" class="inline-block mt-6 text-sm font-medium text-forest" data-reveal>Selengkapnya tentang kami &rarr;</a>
+    <section id="tentang" class="max-w-5xl mx-auto px-6 py-20">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="photo-frame max-w-md mx-auto md:mx-0 w-full" data-reveal>
+          <span class="photo-badge" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.5 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6.2C9.6 14.2 12 13 13 12"/></svg></span>
+          <img src="./assets/images/rohis-ruang-al-ihsan.jpg" alt="Suasana ruang Rohis Al Ihsan: balai kayu bertiang ukir dengan bedug, lentera, tikar pandan, Al-Quran, dan kotak infak diterangi cahaya pagi" width="448" height="299" class="w-full aspect-[4/3] object-cover rounded-2xl" loading="lazy">
+        </div>
+        <div>
+          <p class="eyebrow mb-3" data-field="about-eyebrow" data-reveal></p>
+          <h2 class="font-serif-custom text-3xl sm:text-4xl leading-tight mb-4" data-field="about-lead" data-reveal></h2>
+          <p class="text-muted leading-relaxed mb-7" data-field="about-body" data-reveal></p>
+          <a href="./tentang.html" class="btn-solid tap-target px-6 py-2.5 text-sm" data-reveal>Selengkapnya tentang kami</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lingkup -->
+    <section class="max-w-5xl mx-auto px-6 pb-4 -mt-4">
+      <ul class="grid grid-cols-3 md:grid-cols-6 gap-6 text-center" aria-label="Lingkup kegiatan Rohis">
+        <li class="icon-tile" data-reveal><img src="./assets/images/icon-masjid.png" alt="" width="96" height="96" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto" loading="lazy"><span class="block mt-3 text-sm font-semibold text-forest">Masjid</span></li>
+        <li class="icon-tile" data-reveal><img src="./assets/images/icon-al-quran.png" alt="" width="96" height="96" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto" loading="lazy"><span class="block mt-3 text-sm font-semibold text-forest">Al-Quran</span></li>
+        <li class="icon-tile" data-reveal><img src="./assets/images/icon-sholat.png" alt="" width="96" height="96" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto" loading="lazy"><span class="block mt-3 text-sm font-semibold text-forest">Sholat</span></li>
+        <li class="icon-tile" data-reveal><img src="./assets/images/icon-eco-islami.png" alt="" width="96" height="96" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto" loading="lazy"><span class="block mt-3 text-sm font-semibold text-forest">Eco Islami</span></li>
+        <li class="icon-tile" data-reveal><img src="./assets/images/icon-komunitas.png" alt="" width="96" height="96" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto" loading="lazy"><span class="block mt-3 text-sm font-semibold text-forest">Komunitas</span></li>
+        <li class="icon-tile" data-reveal><img src="./assets/images/icon-dakwah.png" alt="" width="96" height="96" class="h-20 w-20 sm:h-24 sm:w-24 mx-auto" loading="lazy"><span class="block mt-3 text-sm font-semibold text-forest">Dakwah</span></li>
+      </ul>
     </section>
 
     <!-- Program -->
-    <section id="program" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
-      <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-8" data-reveal>02 / Apa yang Kami Lakukan</h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-list="programs"></div>
+    <section id="program" class="section-mist">
+      <div class="max-w-5xl mx-auto px-6 py-20">
+        <div class="text-center mb-12">
+          <p class="eyebrow mb-3" data-reveal>Program Kami</p>
+          <h2 class="font-serif-custom text-3xl sm:text-4xl" data-reveal>Apa yang Kami Lakukan</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" data-list="programs"></div>
+      </div>
     </section>
 
     <!-- Kegiatan Terbaru -->
-    <section id="kegiatan" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
-      <div class="flex justify-between items-end mb-10">
-        <h2 class="text-xs uppercase tracking-widest text-muted font-semibold" data-reveal>03 / Kegiatan Terkini</h2>
-        <a href="./kegiatan.html" class="text-xs text-muted hover:text-forest" data-reveal>Lihat semua &rarr;</a>
+    <section id="kegiatan" class="max-w-5xl mx-auto px-6 py-20">
+      <div class="flex justify-between items-end mb-10 gap-4">
+        <div>
+          <p class="eyebrow mb-3" data-reveal>Kegiatan</p>
+          <h2 class="font-serif-custom text-3xl sm:text-4xl" data-reveal>Kegiatan Terkini</h2>
+        </div>
+        <a href="./kegiatan.html" class="text-sm font-semibold text-leaf hover:text-forest shrink-0" data-reveal>Lihat semua &rarr;</a>
       </div>
       <div data-list="activities-preview"></div>
     </section>
 
     <!-- Tulisan Terbaru -->
-    <section id="buletin" class="max-w-4xl mx-auto px-6 py-16 border-t border-line">
-      <div class="flex justify-between items-end mb-8">
-        <h2 class="text-xs uppercase tracking-widest text-muted font-semibold" data-reveal>04 / Rohis Journal</h2>
-        <a href="./tulisan.html" class="text-xs text-muted hover:text-forest" data-reveal>Arsip tulisan &rarr;</a>
+    <section id="buletin" class="section-mist">
+      <div class="max-w-5xl mx-auto px-6 py-20">
+        <div class="flex justify-between items-end mb-10 gap-4">
+          <div>
+            <p class="eyebrow mb-3" data-reveal>Rohis Journal</p>
+            <h2 class="font-serif-custom text-3xl sm:text-4xl" data-reveal>Tulisan &amp; Renungan</h2>
+          </div>
+          <a href="./tulisan.html" class="text-sm font-semibold text-leaf hover:text-forest shrink-0" data-reveal>Arsip tulisan &rarr;</a>
+        </div>
+        <div class="space-y-4" data-list="articles-preview"></div>
       </div>
-      <div class="space-y-4" data-list="articles-preview"></div>
     </section>
 
     <!-- CTA Bergabung -->
-    <section class="max-w-4xl mx-auto px-6 py-20 border-t border-line text-center">
-      <h2 class="text-xs uppercase tracking-widest text-muted font-semibold mb-6" data-field="join-eyebrow" data-reveal></h2>
-      <p class="font-serif-custom text-2xl sm:text-4xl leading-snug max-w-2xl mx-auto mb-8" data-field="join-headline" data-reveal></p>
-      <a href="#kontak" data-field="join-cta" class="tap-target inline-flex items-center bg-forest text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-black transition" data-reveal></a>
+    <section class="max-w-5xl mx-auto px-6 pt-20">
+      <div class="join-card px-6 sm:px-14 py-14 text-center">
+        <p class="text-xs font-bold uppercase tracking-widest text-white/75 mb-5" data-field="join-eyebrow" data-reveal></p>
+        <p class="font-serif-custom text-2xl sm:text-4xl leading-snug max-w-2xl mx-auto mb-8" data-field="join-headline" data-reveal></p>
+        <a href="#kontak" data-field="join-cta" class="tap-target inline-flex items-center justify-center rounded-full bg-white text-forest px-7 py-3 text-sm font-semibold hover:bg-mist transition" data-reveal></a>
+      </div>
     </section>
   </main>
 
   <!-- Footer / Hubungi -->
-  <footer id="kontak" class="max-w-4xl mx-auto px-6 py-16 border-t border-line text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6">
-    <div class="flex items-center gap-4">
+  <footer id="kontak" class="site-footer">
+  <div class="max-w-5xl mx-auto px-6 py-14 text-center md:text-left flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="logo-plate flex items-center gap-4">
       <img src="./assets/images/logo-rohis-sman2tarakan.png" alt="Logo Rohis SMAN 2 Tarakan" width="56" height="55" class="h-14 w-auto" loading="lazy">
       <img src="./assets/images/logo-rohis-indonesia.png" alt="Logo Rohis Indonesia" width="67" height="56" class="h-14 w-auto" loading="lazy">
     </div>
     <div>
-      <p class="font-serif-custom text-lg" data-field="footer-org">Rohis SMADA Tarakan</p>
+      <p class="font-serif-custom text-lg" data-field="footer-org">Rohis Al Ihsan</p>
       <p class="text-xs text-muted mt-1"><span data-field="footer-school">SMAN 2 Tarakan</span> &middot; <span data-field="footer-address">Tarakan, Kalimantan Utara</span> &bull; Dibangun dengan kemandirian.</p>
       <a href="./kelola/" class="text-xs text-muted/70 hover:text-forest mt-3 inline-block">Kelola</a>
     </div>
@@ -124,6 +198,7 @@
       </div>
       <a data-field="footer-email" href="#" class="text-xs text-muted hover:text-forest hidden"></a>
     </div>
+  </div>
   </footer>
 
   <script src="./js/data.js"></script>

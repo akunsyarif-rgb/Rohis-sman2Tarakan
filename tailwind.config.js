@@ -3,16 +3,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        forest: '#234233',
-        ivory: '#FBFBF9',
-        charcoal: '#1E211F',
-        muted: '#6E736F',
-        line: '#E5E3DE',
-        surface: '#F4F3EF',
+        forest: '#2F5D3A',
+        leaf: '#3E7A45',
+        sage: '#7A9A7E',
+        mist: '#EAF2E3',
+        ivory: '#F7F9F3',
+        charcoal: '#22302A',
+        muted: '#5F6F64',
+        line: '#DCE6D5',
+        surface: '#EEF4E8',
       },
       fontFamily: {
-        serif: ['Playfair Display', 'Georgia', 'serif'],
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        serif: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'system-ui', 'sans-serif'],
       },
     },
   },

@@ -1,6 +1,6 @@
 # rohis-sman2tarakan.github.io
 
-Website Rohis SMAN 2 Tarakan. Static site (HTML + Tailwind CDN), tanpa build step, siap deploy langsung ke GitHub Pages.
+Website Rohis Al Ihsan SMAN 2 Tarakan. Static site (HTML + Tailwind hasil build yang di-commit), siap deploy langsung ke GitHub Pages.
 
 ## Struktur
 
