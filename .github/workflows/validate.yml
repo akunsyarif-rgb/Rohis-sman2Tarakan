@@ -14,3 +14,10 @@ jobs:
 
       - name: Check JSON validity, required fields, and internal links
         run: node .github/scripts/validate.js
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check js/app.js
+          node --check js/admin.js
+          node --check js/data.js
+          node --check .github/scripts/validate.js
