@@ -20,10 +20,10 @@
   };
 
   const SEED_PATHS = {
-    site: '/data/site.json',
-    programs: '/data/programs.json',
-    activities: '/data/activities.json',
-    articles: '/data/articles.json',
+    site: './data/site.json',
+    programs: './data/programs.json',
+    activities: './data/activities.json',
+    articles: './data/articles.json',
   };
 
   function readCache(key) {
