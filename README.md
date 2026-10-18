@@ -30,7 +30,7 @@ Website Rohis SMAN 2 Tarakan. Static site (HTML + Tailwind CDN), tanpa build ste
 │   ├── data.js              ContentRepository — satu-satunya jalur akses data
 │   ├── app.js                Rendering & interaksi situs publik
 │   ├── admin.js              Logika admin workspace (CRUD, preview, settings)
-│   └── tailwind-config.js    Design tokens Tailwind (warna & font bersama)
+│   (tailwind.config.js di root = design tokens; css/tailwind.css = hasil build, wajib di-commit)
 │
 └── .github/
     ├── workflows/validate.yml   CI: validasi JSON, field wajib, tautan internal
@@ -116,3 +116,18 @@ alih-alih dikarang. Isi melalui `/kelola/` → Pengaturan, atau langsung edit `d
 
 Font display: **Playfair Display** (headline, judul artikel). Font UI: **Plus Jakarta Sans**
 (body, navigasi, form, admin).
+
+## Build CSS
+
+Tailwind tidak lagi dimuat dari CDN. Setelah mengubah class di HTML/JS atau `tailwind.config.js`:
+
+```
+npm install
+npm run build:css
+```
+
+lalu commit `css/tailwind.css`. CI akan gagal jika file ini tidak sinkron.
+
+## Catatan data
+
+Situs publik selalu membaca `data/*.json`. Perubahan di `/kelola/` hanya tersimpan di browser pengurus; gunakan tombol ekspor lalu commit file JSON agar tampil untuk semua pengunjung.

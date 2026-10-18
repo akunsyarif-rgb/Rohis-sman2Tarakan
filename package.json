@@ -1,0 +1,11 @@
+{
+  "name": "rohis-sman2tarakan",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i css/tailwind.src.css -o css/tailwind.css --minify",
+    "validate": "node .github/scripts/validate.js"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

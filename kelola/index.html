@@ -7,13 +7,12 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#234233">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23234233' rx='16'/%3E%3Ctext x='50' y='68' font-size='60' font-family='Georgia, serif' fill='%23FBFBF9' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="/js/tailwind-config.js"></script>
+  <link rel="stylesheet" href="../css/tailwind.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body class="selection:bg-forest selection:text-white" data-page="kelola">
 
@@ -33,7 +32,7 @@
 
     <aside id="sidebar" class="hidden md:flex md:flex-col w-full md:w-64 shrink-0 border-b md:border-b-0 md:border-r border-line bg-white px-4 py-6 md:min-h-screen">
       <div class="hidden md:block px-2 mb-8">
-        <a href="/" class="text-xs text-muted hover:text-forest">&larr; Kembali ke situs</a>
+        <a href="../" class="text-xs text-muted hover:text-forest">&larr; Kembali ke situs</a>
         <p class="font-serif-custom text-2xl mt-2">Kelola</p>
         <p class="text-xs text-muted">Rohis SMADA Tarakan</p>
       </div>
@@ -46,7 +45,7 @@
         <a href="#pengaturan" class="admin-nav-link" data-nav-view="pengaturan">Pengaturan</a>
       </nav>
       <div class="mt-auto pt-8 hidden md:block">
-        <a href="/" class="text-xs text-muted hover:text-forest">&larr; Kembali ke situs publik</a>
+        <a href="../" class="text-xs text-muted hover:text-forest">&larr; Kembali ke situs publik</a>
       </div>
     </aside>
 
@@ -172,6 +171,16 @@
               <div>
                 <label class="admin-label" for="article-date">Tanggal</label>
                 <input class="admin-input" id="article-date" name="date" type="date" required>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label" for="article-readtime">Waktu baca</label>
+                <input class="admin-input" id="article-readtime" name="readTime" placeholder="3 menit membaca">
+              </div>
+              <div>
+                <label class="admin-label" for="article-edition">Edisi</label>
+                <input class="admin-input" id="article-edition" name="edition">
               </div>
             </div>
             <div>
@@ -375,7 +384,7 @@
 
   <div id="admin-toast" class="admin-toast" role="status" aria-live="polite"></div>
 
-  <script src="/js/data.js"></script>
-  <script src="/js/admin.js"></script>
+  <script src="../js/data.js"></script>
+  <script src="../js/admin.js"></script>
 </body>
 </html>
