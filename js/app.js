@@ -6,6 +6,31 @@
  */
 
 (function () {
+  // Treat content values as untrusted. Sanitize generated markup before it
+  // reaches the live DOM; keep only the HTML elements/attributes this site uses.
+  function sanitizeHTML(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(String(html), 'text/html');
+    doc.querySelectorAll('script, iframe, object, embed, form, base, meta, link, style, svg, math').forEach((el) => el.remove());
+    doc.querySelectorAll('*').forEach((el) => {
+      Array.from(el.attributes).forEach((attr) => {
+        const name = attr.name.toLowerCase();
+        const value = attr.value.trim();
+        if (name.startsWith('on') || name === 'srcdoc' || name === 'formaction' || name === 'style' || name === 'srcset') {
+          el.removeAttribute(attr.name);
+          return;
+        }
+        if (name === 'href' || name === 'src' || name === 'xlink:href') {
+          const isImageData = name === 'src' && /^data:image\/(png|jpeg|gif|webp);base64,/i.test(value);
+          const safeScheme = /^(https?:|mailto:|tel:)/i.test(value);
+          const safeRelative = /^(\/|\.\/|\.\.\/|#|\?)/.test(value) || value === '';
+          if (!(isImageData || safeScheme || safeRelative)) el.removeAttribute(attr.name);
+        }
+      });
+    });
+    return doc.body.innerHTML;
+  }
+
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function formatDate(dateStr) {
@@ -192,9 +217,9 @@
       .filter((p) => p.status === 'active')
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-    container.innerHTML = active.length
+    container.innerHTML = sanitizeHTML(active.length
       ? active.map(programItemHTML).join('')
-      : '<p class="text-sm text-muted">Program sedang disusun ulang.</p>';
+      : '<p class="text-sm text-muted">Program sedang disusun ulang.</p>');
   }
 
   // ------------------------------------------------------------------
@@ -252,16 +277,16 @@
     const activities = publishedSortedByDate(await ContentRepository.getActivities());
 
     if (!activities.length) {
-      container.innerHTML = '<p class="text-sm text-muted" data-reveal>Belum ada kegiatan yang dipublikasikan. Nantikan kabar terbaru dari kami.</p>';
+      container.innerHTML = sanitizeHTML('<p class="text-sm text-muted" data-reveal>Belum ada kegiatan yang dipublikasikan. Nantikan kabar terbaru dari kami.</p>');
       return;
     }
 
     const [featured, ...rest] = activities;
     const supporting = rest.slice(0, 3);
-    container.innerHTML = `
+    container.innerHTML = sanitizeHTML(`
       ${featuredActivityHTML(featured)}
       <div class="mt-10">${supporting.map(activityListItemHTML).join('')}</div>
-    `;
+    `);
   }
 
   async function renderActivitiesFull() {
@@ -270,11 +295,11 @@
     const activities = publishedSortedByDate(await ContentRepository.getActivities());
 
     if (!activities.length) {
-      container.innerHTML = '<p class="text-sm text-muted py-10" data-reveal>Belum ada kegiatan yang dipublikasikan.</p>';
+      container.innerHTML = sanitizeHTML('<p class="text-sm text-muted py-10" data-reveal>Belum ada kegiatan yang dipublikasikan.</p>');
       return;
     }
 
-    container.innerHTML = activities.map(activityListItemHTML).join('');
+    container.innerHTML = sanitizeHTML(activities.map(activityListItemHTML).join(''));
     initCategoryFilter(activities, container, 'activities-category');
   }
 
@@ -300,9 +325,9 @@
     if (!container) return;
     const articles = publishedSortedByDate(await ContentRepository.getArticles()).slice(0, 3);
 
-    container.innerHTML = articles.length
+    container.innerHTML = sanitizeHTML(articles.length
       ? articles.map(articleCardHTML).join('')
-      : '<p class="text-sm text-muted" data-reveal>Belum ada tulisan yang diterbitkan.</p>';
+      : '<p class="text-sm text-muted" data-reveal>Belum ada tulisan yang diterbitkan.</p>');
   }
 
   async function renderArticlesFull() {
@@ -311,11 +336,11 @@
     const articles = publishedSortedByDate(await ContentRepository.getArticles());
 
     if (!articles.length) {
-      container.innerHTML = '<p class="text-sm text-muted py-10" data-reveal>Belum ada tulisan yang diterbitkan.</p>';
+      container.innerHTML = sanitizeHTML('<p class="text-sm text-muted py-10" data-reveal>Belum ada tulisan yang diterbitkan.</p>');
       return;
     }
 
-    container.innerHTML = `<div class="space-y-4">${articles.map(articleCardHTML).join('')}</div>`;
+    container.innerHTML = sanitizeHTML(`<div class="space-y-4">${articles.map(articleCardHTML).join('')}</div>`);
     initCategoryFilter(articles, container, 'articles-category');
   }
 
@@ -327,14 +352,14 @@
     if (!filterBar) return;
 
     const categories = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
-    filterBar.innerHTML = ['Semua', ...categories]
+    filterBar.innerHTML = sanitizeHTML(['Semua', ...categories]
       .map(
         (cat, i) => `
         <button type="button" class="tap-target px-4 py-2 rounded-full text-xs font-medium border border-line transition ${
           i === 0 ? 'bg-forest text-white border-forest' : 'text-muted hover:border-forest hover:text-forest'
         }" data-cat="${cat === 'Semua' ? '' : cat}">${cat}</button>`
       )
-      .join('');
+      .join(''));
 
     qsa('button', filterBar).forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -366,10 +391,10 @@
   }
 
   function renderNotFound(root, backHref, label) {
-    root.innerHTML = `
+    root.innerHTML = sanitizeHTML(`
       <div class="text-center py-24">
         <p class="text-sm text-muted mb-4">${label} tidak ditemukan.</p>
-        <a href="${backHref}" class="text-forest font-medium text-sm">&larr; Kembali ke daftar</a>
+        <a href="${backHref}" class="text-forest font-medium text-sm">&larr); Kembali ke daftar</a>
       </div>`;
   }
 
@@ -391,9 +416,9 @@
     document.title = `${activity.title} — Rohis SMADA Tarakan`;
 
     const gallery = Array.isArray(activity.gallery) ? activity.gallery : [];
-    root.innerHTML = `
+    root.innerHTML = sanitizeHTML(`
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
+      <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr); Kembali ke daftar kegiatan</a>
       <div class="flex items-center gap-3 text-xs text-muted mb-4" data-reveal>
         <span class="uppercase tracking-widest text-forest font-medium">${activity.category || 'Kegiatan'}</span>
         <span>&middot;</span>
@@ -429,9 +454,9 @@
 
     document.title = `${article.title} — Rohis SMADA Tarakan`;
 
-    root.innerHTML = `
+    root.innerHTML = sanitizeHTML(`
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
+      <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr); Kembali ke Rohis Journal</a>
       <span class="text-xs text-forest font-medium uppercase tracking-widest" data-reveal>${article.category || 'Tulisan'}</span>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${article.title}</h1>
       <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${article.author || 'Rohis'} &middot; ${formatDate(article.date)}${
