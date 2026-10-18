@@ -209,7 +209,7 @@
 
   function featuredActivityHTML(activity) {
     return `
-      <a href="/kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-reveal>
+      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-reveal>
         <div class="media-frame">${activityCoverHTML(activity, 'aspect-[4/3]')}</div>
         <div>
           <div class="flex items-center gap-3 text-xs text-muted mb-3">
@@ -226,7 +226,7 @@
 
   function activityListItemHTML(activity) {
     return `
-      <a href="/kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group flex gap-4 items-start py-5 border-t border-line" data-reveal data-category="${activity.category || ''}">
+      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group flex gap-4 items-start py-5 border-t border-line" data-reveal data-category="${activity.category || ''}">
         <div class="media-frame w-24 h-24 md:w-28 md:h-28 shrink-0">${activityCoverHTML(activity, 'w-full h-full')}</div>
         <div class="min-w-0">
           <div class="flex items-center gap-3 text-xs text-muted mb-1.5">
@@ -283,7 +283,7 @@
   // ------------------------------------------------------------------
   function articleCardHTML(article) {
     return `
-      <a href="/tulisan-detail.html?id=${encodeURIComponent(article.id)}" class="group block p-6 bg-surface rounded-xl" data-reveal data-category="${article.category || ''}">
+      <a href="./tulisan-detail.html?id=${encodeURIComponent(article.id)}" class="group block p-6 bg-surface rounded-xl" data-reveal data-category="${article.category || ''}">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="min-w-0">
             <span class="text-xs text-forest font-medium uppercase tracking-widest">${article.category || 'Tulisan'}</span>
@@ -393,7 +393,7 @@
     const gallery = Array.isArray(activity.gallery) ? activity.gallery : [];
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="/kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
+      <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
       <div class="flex items-center gap-3 text-xs text-muted mb-4" data-reveal>
         <span class="uppercase tracking-widest text-forest font-medium">${activity.category || 'Kegiatan'}</span>
         <span>&middot;</span>
@@ -431,7 +431,7 @@
 
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="/tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
+      <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
       <span class="text-xs text-forest font-medium uppercase tracking-widest" data-reveal>${article.category || 'Tulisan'}</span>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${article.title}</h1>
       <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${article.author || 'Rohis'} &middot; ${formatDate(article.date)}${
