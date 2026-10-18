@@ -1,5 +1,7 @@
+# Catatan: file ini hanya dibaca crawler jika situs dilayani dari root domain.
+# Di project-site GitHub Pages, /kelola/ dilindungi oleh <meta name="robots" content="noindex, nofollow">.
 User-agent: *
 Allow: /
 Disallow: /kelola/
 
-Sitemap: https://rohis-sman2tarakan.github.io/sitemap.xml
+Sitemap: https://akunsyarif-rgb.github.io/Rohis-sman2Tarakan/sitemap.xml

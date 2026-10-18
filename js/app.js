@@ -15,6 +15,14 @@
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
+  const esc = (v) => RohisUtil.escapeHtml(v);
+  const safeUrl = (v) => RohisUtil.safeUrl(v);
+  // Link targets from site.json: http(s), same-page anchors or relative only.
+  const safeHref = (v, fallback) => {
+    const u = String(v || '').trim();
+    return u && (u.startsWith('#') || RohisUtil.safeUrl(u)) ? u : fallback;
+  };
+
   function setText(el, value) {
     if (el && value != null) el.textContent = value;
   }
@@ -105,7 +113,7 @@
     const ig = qs('[data-field="social-instagram"]');
     if (ig) {
       if (site.social && site.social.instagram) {
-        ig.href = site.social.instagram;
+        ig.href = safeHref(site.social.instagram, '#');
         ig.classList.remove('pointer-events-none', 'text-muted/50');
       } else {
         ig.href = '#';
@@ -118,7 +126,7 @@
     const wa = qs('[data-field="social-whatsapp"]');
     if (wa) {
       if (site.social && site.social.whatsapp) {
-        wa.href = site.social.whatsapp;
+        wa.href = safeHref(site.social.whatsapp, '#');
         wa.classList.remove('pointer-events-none', 'text-muted/50');
       } else {
         wa.href = '#';
@@ -131,7 +139,7 @@
     const email = qs('[data-field="footer-email"]');
     if (email) {
       if (site.contact && site.contact.email) {
-        email.href = `mailto:${site.contact.email}`;
+        email.href = `mailto:${encodeURIComponent(site.contact.email).replace(/%40/g, '@')}`;
         email.textContent = site.contact.email;
         email.classList.remove('hidden');
       } else {
@@ -153,7 +161,7 @@
     const cta = qs('[data-field="hero-cta"]');
     if (cta) {
       setText(cta, hero.ctaLabel);
-      cta.href = hero.ctaUrl || '#kontak';
+      cta.href = safeHref(hero.ctaUrl, '#kontak');
     }
   }
 
@@ -171,16 +179,16 @@
     const cta = qs('[data-field="join-cta"]');
     if (cta) {
       setText(cta, join.ctaLabel);
-      cta.href = join.ctaUrl || '#kontak';
+      cta.href = safeHref(join.ctaUrl, '#kontak');
     }
   }
 
   function programItemHTML(program) {
     return `
       <div class="border-l border-forest pl-4 md:pl-6 py-1" data-reveal>
-        <span class="text-xs font-mono text-neutral-400">${program.number}</span>
-        <h3 class="font-serif-custom text-xl mt-1 mb-2">${program.title}</h3>
-        <p class="text-sm text-muted leading-relaxed max-w-md">${program.description}</p>
+        <span class="text-xs font-mono text-neutral-400">${esc(program.number)}</span>
+        <h3 class="font-serif-custom text-xl mt-1 mb-2">${esc(program.title)}</h3>
+        <p class="text-sm text-muted leading-relaxed max-w-md">${esc(program.description)}</p>
       </div>`;
   }
 
@@ -188,7 +196,7 @@
     const container = qs('[data-list="programs"]');
     if (!container) return;
     const programs = await ContentRepository.getPrograms();
-    const active = programs
+    const active = [...programs]
       .filter((p) => p.status === 'active')
       .sort((a, b) => (a.order || 0) - (b.order || 0));
 
@@ -201,8 +209,8 @@
   // Activities (Kegiatan)
   // ------------------------------------------------------------------
   function activityCoverHTML(activity, aspect) {
-    if (activity.cover) {
-      return `<img src="${activity.cover}" alt="${activity.title}" class="w-full ${aspect} object-cover" loading="lazy">`;
+    if (safeUrl(activity.cover)) {
+      return `<img src="${esc(safeUrl(activity.cover))}" alt="${esc(activity.title)}" class="w-full ${aspect} object-cover" loading="lazy">`;
     }
     return `<div class="w-full ${aspect} bg-surface flex items-center justify-center text-xs text-muted uppercase tracking-widest">Foto kegiatan</div>`;
   }
@@ -213,12 +221,12 @@
         <div class="media-frame">${activityCoverHTML(activity, 'aspect-[4/3]')}</div>
         <div>
           <div class="flex items-center gap-3 text-xs text-muted mb-3">
-            <span class="uppercase tracking-widest text-forest font-medium">${activity.category || 'Kegiatan'}</span>
+            <span class="uppercase tracking-widest text-forest font-medium">${esc(activity.category || 'Kegiatan')}</span>
             <span>&middot;</span>
-            <time datetime="${activity.date}">${formatDate(activity.date)}</time>
+            <time datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
           </div>
-          <h3 class="font-serif-custom text-2xl md:text-3xl mb-3 group-hover:underline decoration-1 underline-offset-4">${activity.title}</h3>
-          <p class="text-sm text-muted leading-relaxed line-clamp-3 max-w-md">${activity.excerpt || ''}</p>
+          <h3 class="font-serif-custom text-2xl md:text-3xl mb-3 group-hover:underline decoration-1 underline-offset-4">${esc(activity.title)}</h3>
+          <p class="text-sm text-muted leading-relaxed line-clamp-3 max-w-md">${esc(activity.excerpt || '')}</p>
           <span class="inline-block mt-4 text-sm font-medium text-forest">Baca selengkapnya &rarr;</span>
         </div>
       </a>`;
@@ -226,16 +234,16 @@
 
   function activityListItemHTML(activity) {
     return `
-      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group flex gap-4 items-start py-5 border-t border-line" data-reveal data-category="${activity.category || ''}">
+      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group flex gap-4 items-start py-5 border-t border-line" data-reveal data-category="${esc(activity.category || '')}">
         <div class="media-frame w-24 h-24 md:w-28 md:h-28 shrink-0">${activityCoverHTML(activity, 'w-full h-full')}</div>
         <div class="min-w-0">
           <div class="flex items-center gap-3 text-xs text-muted mb-1.5">
-            <span class="uppercase tracking-widest text-forest font-medium">${activity.category || 'Kegiatan'}</span>
+            <span class="uppercase tracking-widest text-forest font-medium">${esc(activity.category || 'Kegiatan')}</span>
             <span>&middot;</span>
-            <time datetime="${activity.date}">${formatDate(activity.date)}</time>
+            <time datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
           </div>
-          <h3 class="font-serif-custom text-lg md:text-xl mb-1 group-hover:underline decoration-1 underline-offset-4">${activity.title}</h3>
-          <p class="text-sm text-muted line-clamp-2">${activity.excerpt || ''}</p>
+          <h3 class="font-serif-custom text-lg md:text-xl mb-1 group-hover:underline decoration-1 underline-offset-4">${esc(activity.title)}</h3>
+          <p class="text-sm text-muted line-clamp-2">${esc(activity.excerpt || '')}</p>
         </div>
       </a>`;
   }
@@ -283,12 +291,12 @@
   // ------------------------------------------------------------------
   function articleCardHTML(article) {
     return `
-      <a href="./tulisan-detail.html?id=${encodeURIComponent(article.id)}" class="group block p-6 bg-surface rounded-xl" data-reveal data-category="${article.category || ''}">
+      <a href="./tulisan-detail.html?id=${encodeURIComponent(article.id)}" class="group block p-6 bg-surface rounded-xl" data-reveal data-category="${esc(article.category || '')}">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="min-w-0">
-            <span class="text-xs text-forest font-medium uppercase tracking-widest">${article.category || 'Tulisan'}</span>
-            <h3 class="font-serif-custom text-xl mt-1.5 group-hover:underline decoration-1 underline-offset-4">${article.title}</h3>
-            <p class="text-xs text-muted mt-1.5">Ditulis oleh ${article.author || 'Rohis'} &middot; ${article.readTime || ''}</p>
+            <span class="text-xs text-forest font-medium uppercase tracking-widest">${esc(article.category || 'Tulisan')}</span>
+            <h3 class="font-serif-custom text-xl mt-1.5 group-hover:underline decoration-1 underline-offset-4">${esc(article.title)}</h3>
+            <p class="text-xs text-muted mt-1.5">Ditulis oleh ${esc(article.author || 'Rohis')} &middot; ${esc(article.readTime || '')}</p>
           </div>
           <span class="text-sm font-medium text-forest shrink-0">Baca selengkapnya &rarr;</span>
         </div>
@@ -332,7 +340,7 @@
         (cat, i) => `
         <button type="button" class="tap-target px-4 py-2 rounded-full text-xs font-medium border border-line transition ${
           i === 0 ? 'bg-forest text-white border-forest' : 'text-muted hover:border-forest hover:text-forest'
-        }" data-cat="${cat === 'Semua' ? '' : cat}">${cat}</button>`
+        }" data-cat="${cat === 'Semua' ? '' : esc(cat)}">${esc(cat)}</button>`
       )
       .join('');
 
@@ -368,7 +376,7 @@
   function renderNotFound(root, backHref, label) {
     root.innerHTML = `
       <div class="text-center py-24">
-        <p class="text-sm text-muted mb-4">${label} tidak ditemukan.</p>
+        <p class="text-sm text-muted mb-4">${esc(label)} tidak ditemukan.</p>
         <a href="${backHref}" class="text-forest font-medium text-sm">&larr; Kembali ke daftar</a>
       </div>`;
   }
@@ -384,28 +392,28 @@
     }
 
     if (!activity) {
-      renderNotFound(root, '/kegiatan.html', 'Kegiatan');
+      renderNotFound(root, './kegiatan.html', 'Kegiatan');
       return;
     }
 
-    document.title = `${activity.title} — Rohis SMADA Tarakan`;
+    document.title = `${esc(activity.title)} — Rohis SMADA Tarakan`;
 
     const gallery = Array.isArray(activity.gallery) ? activity.gallery : [];
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
       <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
       <div class="flex items-center gap-3 text-xs text-muted mb-4" data-reveal>
-        <span class="uppercase tracking-widest text-forest font-medium">${activity.category || 'Kegiatan'}</span>
+        <span class="uppercase tracking-widest text-forest font-medium">${esc(activity.category || 'Kegiatan')}</span>
         <span>&middot;</span>
-        <time datetime="${activity.date}">${formatDate(activity.date)}</time>
+        <time datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
       </div>
-      <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mb-8" data-reveal>${activity.title}</h1>
+      <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mb-8" data-reveal>${esc(activity.title)}</h1>
       <div class="media-frame mb-10" data-reveal>${activityCoverHTML(activity, 'aspect-[16/9] rounded-xl')}</div>
-      <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${activity.content || ''}</div>
+      <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${esc(activity.content || '')}</div>
       ${
         gallery.length
           ? `<div class="mt-12 grid grid-cols-2 md:grid-cols-3 gap-3" data-reveal>${gallery
-              .map((src) => `<div class="media-frame"><img src="${src}" alt="" loading="lazy" class="w-full aspect-square object-cover rounded-lg"></div>`)
+              .map((src) => `<div class="media-frame"><img src="${esc(safeUrl(src))}" alt="" loading="lazy" class="w-full aspect-square object-cover rounded-lg"></div>`)
               .join('')}</div>`
           : ''
       }
@@ -423,22 +431,22 @@
     }
 
     if (!article) {
-      renderNotFound(root, '/tulisan.html', 'Tulisan');
+      renderNotFound(root, './tulisan.html', 'Tulisan');
       return;
     }
 
-    document.title = `${article.title} — Rohis SMADA Tarakan`;
+    document.title = `${esc(article.title)} — Rohis SMADA Tarakan`;
 
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
       <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
-      <span class="text-xs text-forest font-medium uppercase tracking-widest" data-reveal>${article.category || 'Tulisan'}</span>
-      <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${article.title}</h1>
-      <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${article.author || 'Rohis'} &middot; ${formatDate(article.date)}${
-      article.readTime ? ` &middot; ${article.readTime}` : ''
+      <span class="text-xs text-forest font-medium uppercase tracking-widest" data-reveal>${esc(article.category || 'Tulisan')}</span>
+      <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${esc(article.title)}</h1>
+      <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${esc(article.author || 'Rohis')} &middot; ${esc(formatDate(article.date))}${
+      article.readTime ? ` &middot; ${esc(article.readTime)}` : ''
     }</p>
-      ${article.cover ? `<div class="media-frame mb-10" data-reveal><img src="${article.cover}" alt="${article.title}" class="w-full aspect-[16/9] object-cover rounded-xl" loading="lazy"></div>` : ''}
-      <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${article.content || ''}</div>
+      ${safeUrl(article.cover) ? `<div class="media-frame mb-10" data-reveal><img src="${esc(safeUrl(article.cover))}" alt="${esc(article.title)}" class="w-full aspect-[16/9] object-cover rounded-xl" loading="lazy"></div>` : ''}
+      <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${esc(article.content || '')}</div>
     `;
   }
 

@@ -19,12 +19,20 @@
     media: 'rohis:media',
   };
 
+  // Resolved against this script's own URL so the same paths work from
+  // any page depth (/, /kelola/) and under a GitHub Pages project path.
+  const SCRIPT_URL = document.currentScript && document.currentScript.src;
   const SEED_PATHS = {
-    site: './data/site.json',
-    programs: './data/programs.json',
-    activities: './data/activities.json',
-    articles: './data/articles.json',
+    site: '../data/site.json',
+    programs: '../data/programs.json',
+    activities: '../data/activities.json',
+    articles: '../data/articles.json',
   };
+
+  // Only the admin workspace reads/writes the local draft cache. Public
+  // pages always read the published JSON, so edits to data/*.json reach
+  // every visitor and stale local copies never shadow them.
+  const IS_ADMIN = document.body && document.body.dataset.page === 'kelola';
 
   function readCache(key) {
     try {
@@ -46,7 +54,8 @@
   }
 
   async function loadSeed(seedPath) {
-    const res = await fetch(seedPath);
+    const url = SCRIPT_URL ? new URL(seedPath, SCRIPT_URL).href : seedPath;
+    const res = await fetch(url, { cache: 'no-cache' });
     if (!res.ok) {
       throw new Error(`Gagal memuat ${seedPath}: ${res.status}`);
     }
@@ -55,6 +64,7 @@
 
   async function loadCollection(key) {
     const storageKey = STORAGE_KEYS[key];
+    if (!IS_ADMIN) return loadSeed(SEED_PATHS[key]);
     const cached = readCache(storageKey);
     if (cached !== null) return cached;
     const seed = await loadSeed(SEED_PATHS[key]);
@@ -234,5 +244,25 @@
   }
 
   global.ContentRepository = new LocalStorageRepository();
-  global.RohisUtil = { slugify };
+  
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Only http(s), same-site relative paths and data:image/ URLs may be used
+  // as image sources; anything else (javascript:, etc.) collapses to ''.
+  function safeUrl(value) {
+    const v = String(value == null ? '' : value).trim();
+    if (!v) return '';
+    if (/^(https?:|data:image\/(png|jpe?g|gif|webp|avif);base64,)/i.test(v)) return v;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(v) || v.startsWith('//')) return '';
+    return v;
+  }
+
+  global.RohisUtil = { slugify, escapeHtml, safeUrl };
 })(window);

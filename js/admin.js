@@ -10,6 +10,7 @@
 
 (function () {
   const qs = (sel, root) => (root || document).querySelector(sel);
+  const esc = (v) => RohisUtil.escapeHtml(v);
   const qsa = (sel, root) => Array.from((root || document).querySelectorAll(sel));
 
   /**
@@ -59,6 +60,9 @@
     return VIEWS.includes(hash) ? hash : 'dashboard';
   }
 
+  // Set by the dashboard so the target form opens after the view switches.
+  let pendingOpen = null;
+
   function renderView() {
     const view = currentView();
     qsa('[data-view-panel]').forEach((panel) => {
@@ -83,6 +87,13 @@
     if (view === 'program') { showSubview('program', 'program-list'); loadProgramList(); }
     if (view === 'media') loadMediaList();
     if (view === 'pengaturan') loadSettingsForm();
+
+    if (pendingOpen) {
+      const { type, id } = pendingOpen;
+      pendingOpen = null;
+      if (type === 'activity' && view === 'kegiatan') openActivityForm(id);
+      if (type === 'article' && view === 'tulisan') openArticleForm(id);
+    }
   }
 
   function showSubview(panelView, subviewName) {
@@ -121,10 +132,10 @@
       ? recent
           .map(
             (item) => `
-        <button type="button" class="admin-row w-full text-left py-4 flex items-center justify-between gap-4 hover:bg-surface px-2 -mx-2 rounded-lg" data-open="${item._type === 'Kegiatan' ? 'activity' : 'article'}" data-id="${item.id}">
+        <button type="button" class="admin-row w-full text-left py-4 flex items-center justify-between gap-4 hover:bg-surface px-2 -mx-2 rounded-lg" data-open="${item._type === 'Kegiatan' ? 'activity' : 'article'}" data-id="${esc(item.id)}">
           <div class="min-w-0">
-            <p class="text-xs text-muted uppercase tracking-widest mb-1">${item._type}</p>
-            <p class="text-sm font-medium truncate">${item.title}</p>
+            <p class="text-xs text-muted uppercase tracking-widest mb-1">${esc(item._type)}</p>
+            <p class="text-sm font-medium truncate">${esc(item.title)}</p>
           </div>
           ${badge(item.status, 'Published', 'Draft')}
         </button>`
@@ -135,11 +146,11 @@
     qsa('[data-open]', list).forEach((btn) => {
       btn.addEventListener('click', () => {
         if (btn.dataset.open === 'activity') {
+          pendingOpen = { type: 'activity', id: btn.dataset.id };
           window.location.hash = '#kegiatan';
-          setTimeout(() => openActivityForm(btn.dataset.id), 0);
         } else {
+          pendingOpen = { type: 'article', id: btn.dataset.id };
           window.location.hash = '#tulisan';
-          setTimeout(() => openArticleForm(btn.dataset.id), 0);
         }
       });
     });
@@ -158,14 +169,14 @@
             (a) => `
         <div class="admin-row py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
           <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${formatDate(a.date)}</span></div>
-            <p class="font-medium truncate">${a.title}</p>
-            <p class="text-xs text-muted truncate">${a.category || ''}</p>
+            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${esc(formatDate(a.date))}</span></div>
+            <p class="font-medium truncate">${esc(a.title)}</p>
+            <p class="text-xs text-muted truncate">${esc(a.category || '')}</p>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${a.id}">Edit</button>
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-preview="${a.id}">Preview</button>
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${a.id}">Hapus</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${esc(a.id)}">Edit</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-preview="${esc(a.id)}">Preview</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${esc(a.id)}">Hapus</button>
           </div>
         </div>`
           )
@@ -189,7 +200,7 @@
     const activity = await ContentRepository.getActivity(id);
     if (!activity) return;
     ContentRepository.setPreviewDraft('activity', activity);
-    window.open('/kegiatan-detail.html?preview=true', '_blank');
+    window.open('../kegiatan-detail.html?preview=true', '_blank');
   }
 
   async function openActivityForm(id) {
@@ -240,7 +251,12 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const activity = activityDraftFromForm(form);
-      await ContentRepository.saveActivity(activity);
+      try {
+        await ContentRepository.saveActivity(activity);
+      } catch (err) {
+        toast('Gagal menyimpan — penyimpanan lokal penuh. Ekspor data lalu hapus gambar besar.');
+        return;
+      }
       toast('Kegiatan disimpan.');
       showSubview('kegiatan', 'kegiatan-list');
       loadActivityList();
@@ -249,7 +265,7 @@
     qs('[data-action="preview-activity"]').addEventListener('click', () => {
       const draft = activityDraftFromForm(form);
       ContentRepository.setPreviewDraft('activity', draft);
-      window.open('/kegiatan-detail.html?preview=true', '_blank');
+      window.open('../kegiatan-detail.html?preview=true', '_blank');
     });
   }
 
@@ -266,14 +282,14 @@
             (a) => `
         <div class="admin-row py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
           <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${formatDate(a.date)}</span></div>
-            <p class="font-medium truncate">${a.title}</p>
-            <p class="text-xs text-muted truncate">${a.author || ''} &middot; ${a.category || ''}</p>
+            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${esc(formatDate(a.date))}</span></div>
+            <p class="font-medium truncate">${esc(a.title)}</p>
+            <p class="text-xs text-muted truncate">${esc(a.author || '')} &middot; ${esc(a.category || '')}</p>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${a.id}">Edit</button>
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-preview="${a.id}">Preview</button>
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${a.id}">Hapus</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${esc(a.id)}">Edit</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-preview="${esc(a.id)}">Preview</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${esc(a.id)}">Hapus</button>
           </div>
         </div>`
           )
@@ -297,7 +313,7 @@
     const article = await ContentRepository.getArticle(id);
     if (!article) return;
     ContentRepository.setPreviewDraft('article', article);
-    window.open('/tulisan-detail.html?preview=true', '_blank');
+    window.open('../tulisan-detail.html?preview=true', '_blank');
   }
 
   async function openArticleForm(id) {
@@ -311,6 +327,8 @@
         form.elements.id.value = article.id;
         form.elements.title.value = article.title || '';
         form.elements.author.value = article.author || '';
+        form.elements.readTime.value = article.readTime || '';
+        form.elements.edition.value = article.edition || '';
         form.elements.date.value = (article.date || '').slice(0, 10);
         form.elements.category.value = article.category || '';
         form.elements.cover.value = article.cover || '';
@@ -328,6 +346,8 @@
       id: data.id || undefined,
       title: data.title,
       author: data.author,
+      readTime: data.readTime,
+      edition: data.edition,
       date: data.date,
       category: data.category,
       cover: data.cover,
@@ -339,17 +359,15 @@
 
   function initArticleForm() {
     const form = qs('[data-form="article"]');
-    let pendingStatus = null;
-
-    qsa('button[data-submit-status]', form).forEach((btn) => {
-      btn.addEventListener('click', () => { pendingStatus = btn.dataset.submitStatus; });
-    });
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const article = articleDraftFromForm(form, pendingStatus);
-      pendingStatus = null;
-      await ContentRepository.saveArticle(article);
+      const article = articleDraftFromForm(form, e.submitter && e.submitter.dataset.submitStatus ? e.submitter.dataset.submitStatus : null);
+      try {
+        await ContentRepository.saveArticle(article);
+      } catch (err) {
+        toast('Gagal menyimpan — penyimpanan lokal penuh. Ekspor data lalu hapus gambar besar.');
+        return;
+      }
       toast(article.status === 'published' ? 'Tulisan diterbitkan.' : 'Draft tersimpan.');
       showSubview('tulisan', 'tulisan-list');
       loadArticleList();
@@ -358,7 +376,7 @@
     qs('[data-action="preview-article"]').addEventListener('click', () => {
       const draft = articleDraftFromForm(form);
       ContentRepository.setPreviewDraft('article', draft);
-      window.open('/tulisan-detail.html?preview=true', '_blank');
+      window.open('../tulisan-detail.html?preview=true', '_blank');
     });
   }
 
@@ -366,7 +384,7 @@
   // Program
   // --------------------------------------------------------------------
   const loadProgramList = latestOnly(async (isCurrent) => {
-    const programs = (await ContentRepository.getPrograms()).sort((a, b) => (a.order || 0) - (b.order || 0));
+    const programs = [...(await ContentRepository.getPrograms())].sort((a, b) => (a.order || 0) - (b.order || 0));
     if (!isCurrent()) return;
     const list = qs('[data-list="programs"]');
     list.innerHTML = programs.length
@@ -375,17 +393,17 @@
             (p) => `
         <div class="admin-row py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
           <div class="min-w-0 flex items-start gap-3">
-            <span class="text-xs font-mono text-muted mt-0.5">${p.number || ''}</span>
+            <span class="text-xs font-mono text-muted mt-0.5">${esc(p.number || '')}</span>
             <div class="min-w-0">
               <div class="flex items-center gap-2 mb-1">${badge(p.status, 'Aktif', 'Nonaktif')}</div>
-              <p class="font-medium truncate">${p.title}</p>
-              <p class="text-xs text-muted truncate">${p.description || ''}</p>
+              <p class="font-medium truncate">${esc(p.title)}</p>
+              <p class="text-xs text-muted truncate">${esc(p.description || '')}</p>
             </div>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${p.id}">Edit</button>
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-toggle="${p.id}">${p.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</button>
-            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${p.id}">Hapus</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-edit="${esc(p.id)}">Edit</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full hover:border-forest" data-toggle="${esc(p.id)}">${p.status === 'active' ? 'Nonaktifkan' : 'Aktifkan'}</button>
+            <button type="button" class="tap-target text-sm px-3 border border-line rounded-full text-red-700 hover:border-red-700" data-delete="${esc(p.id)}">Hapus</button>
           </div>
         </div>`
           )
@@ -442,6 +460,7 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = readForm(form);
+      try {
       await ContentRepository.saveProgram({
         id: data.id || undefined,
         number: data.number,
@@ -450,6 +469,10 @@
         status: data.status,
         order: Number(data.order) || 0,
       });
+      } catch (err) {
+        toast('Gagal menyimpan — penyimpanan lokal penuh.');
+        return;
+      }
       toast('Program disimpan.');
       showSubview('program', 'program-list');
       loadProgramList();
@@ -463,14 +486,14 @@
 
   function mediaThumbHTML(item, selectable) {
     return `
-      <div class="border border-line rounded-lg overflow-hidden group relative" data-media-id="${item.id}">
-        <img src="${item.dataUrl}" alt="${item.name}" class="w-full aspect-square object-cover ${selectable ? 'cursor-pointer' : ''}" ${selectable ? 'data-select="1"' : ''}>
+      <div class="border border-line rounded-lg overflow-hidden group relative" data-media-id="${esc(item.id)}">
+        <img src="${esc(RohisUtil.safeUrl(item.dataUrl))}" alt="${esc(item.name)}" class="w-full aspect-square object-cover ${selectable ? 'cursor-pointer' : ''}" ${selectable ? 'data-select="1"' : ''}>
         ${
           selectable
             ? ''
             : `<div class="p-2">
-                <p class="text-xs truncate">${item.name}</p>
-                <button type="button" class="text-xs text-red-700 mt-1" data-delete-media="${item.id}">Hapus</button>
+                <p class="text-xs truncate">${esc(item.name)}</p>
+                <button type="button" class="text-xs text-red-700 mt-1" data-delete-media="${esc(item.id)}">Hapus</button>
               </div>`
         }
       </div>`;

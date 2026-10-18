@@ -6,8 +6,10 @@
  *  1. Every data/*.json file parses as valid JSON.
  *  2. Every record in the content collections has the fields the
  *     rest of the site relies on.
- *  3. Every root-relative link/asset reference (href="/..." or
- *     src="/...") in an .html file points at a file that exists.
+ *  3. Every relative link/asset reference in an .html file points at a
+ *     file that exists; root-absolute paths are rejected (they break on
+ *     a GitHub Pages project site).
+ *  4. JS files parse; sitemap origin matches the canonical URL.
  */
 
 const fs = require('fs');
@@ -75,6 +77,7 @@ for (const [file, fields] of Object.entries(REQUIRED_FIELDS)) {
       if (seenIds.has(item.id)) fail(`data/${file} memiliki id duplikat: "${item.id}".`);
       seenIds.add(item.id);
     }
+    if (item.date && Number.isNaN(Date.parse(item.date))) fail(`data/${file}[${i}] tanggal tidak valid: "${item.date}".`);
     if (item.status && !['draft', 'published', 'active', 'inactive'].includes(item.status)) {
       fail(`data/${file}[${i}] memiliki status tidak dikenal: "${item.status}".`);
     }
@@ -95,20 +98,51 @@ function listHtmlFiles(dir) {
   return out;
 }
 
-const REF_PATTERN = /(?:href|src)="(\/[^"]*)"/g;
+const REF_PATTERN = /(?:href|src)="([^"]*)"/g;
 
 for (const htmlFile of listHtmlFiles(ROOT)) {
   const content = fs.readFileSync(htmlFile, 'utf8');
+  const rel = path.relative(ROOT, htmlFile);
   let match;
   while ((match = REF_PATTERN.exec(content))) {
-    let ref = match[1].split('#')[0].split('?')[0];
-    if (!ref || ref === '/') continue;
-    const target = path.join(ROOT, ref);
-    if (!fs.existsSync(target)) {
-      fail(`${path.relative(ROOT, htmlFile)} mereferensikan path yang tidak ada: "${match[1]}".`);
+    const raw = match[1];
+    if (/^([a-z][a-z0-9+.-]*:|\/\/|#|\$\{)/i.test(raw) || !raw) continue;
+    const ref = raw.split('#')[0].split('?')[0];
+    if (!ref) continue;
+    // Root-absolute paths break under a GitHub Pages project path.
+    if (ref.startsWith('/')) {
+      fail(`${rel} memakai path root-absolute "${raw}" (gunakan path relatif).`);
+      continue;
     }
+    let target = path.resolve(path.dirname(htmlFile), ref);
+    if (fs.existsSync(target) && fs.statSync(target).isDirectory()) target = path.join(target, 'index.html');
+    if (!fs.existsSync(target)) fail(`${rel} mereferensikan path yang tidak ada: "${raw}".`);
+  }
+
+  // data-field / data-list hooks used by app.js must be consistent.
+  if (/<script[^>]+src="[^"]*app\.js"/.test(content) && !/data-page="/.test(content)) {
+    fail(`${rel} memuat app.js tetapi <body> tidak punya data-page.`);
   }
 }
+
+// JS files must at least parse.
+for (const f of ['app.js', 'admin.js', 'data.js']) {
+  try {
+    new (require('vm').Script)(fs.readFileSync(path.join(ROOT, 'js', f), 'utf8'), { filename: f });
+  } catch (err) {
+    fail(`js/${f} tidak valid: ${err.message}`);
+  }
+}
+
+// Sitemap must use the same origin as the canonical URLs.
+const canonical = (fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/rel="canonical" href="([^"]+)"/) || [])[1];
+const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
+if (canonical) {
+  for (const loc of sitemap.match(/<loc>[^<]+<\/loc>/g) || []) {
+    if (!loc.includes(canonical)) fail(`sitemap.xml ${loc} tidak diawali canonical ${canonical}.`);
+  }
+}
+
 ok('Pemeriksaan tautan internal (root-relative) selesai.');
 
 // ---------------------------------------------------------------------
