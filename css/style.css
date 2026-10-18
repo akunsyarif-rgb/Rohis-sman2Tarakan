@@ -8,7 +8,7 @@
 :root {
   --color-forest: #2F5D3A;
   --color-leaf: #3E7A45;
-  --color-sage: #A9C4A0;
+  --color-sage: #7A9A7E;
   --color-mist: #EAF2E3;
   --color-ivory: #F7F9F3;
   --color-charcoal: #22302A;
@@ -16,9 +16,9 @@
   --color-line: #DCE6D5;
   --color-surface: #EEF4E8;
 
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Poppins', system-ui, sans-serif;
   --shadow-soft: 0 10px 30px -12px rgba(47, 93, 58, 0.25);
-  --font-ui: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-ui: 'Poppins', system-ui, sans-serif;
 
   --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -55,7 +55,7 @@ html {
 
 body {
   font-family: var(--font-ui);
-  background: linear-gradient(180deg, #EAF2E3 0, var(--color-ivory) 520px) var(--color-ivory) no-repeat;
+  background: linear-gradient(180deg, var(--color-sage) 0, #C9DAC3 220px, var(--color-ivory) 560px) var(--color-ivory) no-repeat;
   color: var(--color-charcoal);
 }
 
@@ -181,8 +181,9 @@ select:focus-visible,
   background-position: center;
 }
 
+/* Photo is set inline by app.js (resolves against the page URL). */
 .hero.has-photo {
-  background-image: linear-gradient(180deg, rgba(24, 52, 33, 0.55) 0%, rgba(24, 52, 33, 0.25) 60%, rgba(24, 52, 33, 0.55) 100%), var(--hero-image);
+  min-height: 34rem;
 }
 
 .hero.has-photo .hero-art {
@@ -244,6 +245,14 @@ select:focus-visible,
 .quick-bar .qb-field svg {
   color: var(--color-leaf);
   flex-shrink: 0;
+}
+
+.icon-tile img {
+  transition: transform 350ms var(--ease-editorial);
+}
+
+.icon-tile:hover img {
+  transform: translateY(-4px) scale(1.04);
 }
 
 .quick-bar .qb-label {

@@ -163,7 +163,7 @@
     const heroEl = qs('#hero');
     const photo = safeUrl(hero.image);
     if (heroEl && photo) {
-      heroEl.style.setProperty('--hero-image', `url("${encodeURI(photo)}")`);
+      heroEl.style.backgroundImage = `linear-gradient(180deg, rgba(20, 40, 26, 0.55) 0%, rgba(20, 40, 26, 0.2) 55%, rgba(20, 40, 26, 0.6) 100%), url("${encodeURI(photo)}")`;
       heroEl.classList.add('has-photo');
     }
 
@@ -192,10 +192,21 @@
     }
   }
 
+  // Illustrated icon per known program id; others fall back to the number badge.
+  const PROGRAM_ICONS = {
+    'kajian-tematik': 'icon-al-quran',
+    'aksi-sosial': 'icon-komunitas',
+    'literasi-media': 'icon-dakwah',
+  };
+
   function programItemHTML(program) {
+    const icon = PROGRAM_ICONS[program.id];
+    const badge = icon
+      ? `<img src="./assets/images/${icon}.png" alt="" width="64" height="64" class="h-16 w-16" loading="lazy">`
+      : `<span class="num-badge">${esc(program.number)}</span>`;
     return `
       <div class="card is-hoverable p-7" data-reveal>
-        <span class="num-badge">${esc(program.number)}</span>
+        ${badge}
         <h3 class="font-serif-custom text-xl mt-5 mb-2">${esc(program.title)}</h3>
         <p class="text-sm text-muted leading-relaxed">${esc(program.description)}</p>
       </div>`;

@@ -5,7 +5,7 @@ module.exports = {
       colors: {
         forest: '#2F5D3A',
         leaf: '#3E7A45',
-        sage: '#A9C4A0',
+        sage: '#7A9A7E',
         mist: '#EAF2E3',
         ivory: '#F7F9F3',
         charcoal: '#22302A',
@@ -14,8 +14,8 @@ module.exports = {
         surface: '#EEF4E8',
       },
       fontFamily: {
-        serif: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        serif: ['Poppins', 'system-ui', 'sans-serif'],
+        sans: ['Poppins', 'system-ui', 'sans-serif'],
       },
     },
   },
