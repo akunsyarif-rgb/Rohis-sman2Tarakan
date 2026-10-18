@@ -157,6 +157,15 @@
     setText(qs('[data-field="hero-headline"]'), hero.headline);
     setText(qs('[data-field="hero-description"]'), hero.description);
     setText(qs('[data-field="hero-meta"]'), hero.meetingNote);
+    setText(qs('[data-field="hero-location"]'), [site.school, site.contact && site.contact.address].filter(Boolean).join(' · '));
+
+    // Optional photo: when site.hero.image is set it replaces the illustrated landscape.
+    const heroEl = qs('#hero');
+    const photo = safeUrl(hero.image);
+    if (heroEl && photo) {
+      heroEl.style.setProperty('--hero-image', `url("${encodeURI(photo)}")`);
+      heroEl.classList.add('has-photo');
+    }
 
     const cta = qs('[data-field="hero-cta"]');
     if (cta) {
@@ -185,10 +194,10 @@
 
   function programItemHTML(program) {
     return `
-      <div class="border-l border-forest pl-4 md:pl-6 py-1" data-reveal>
-        <span class="text-xs font-mono text-neutral-400">${esc(program.number)}</span>
-        <h3 class="font-serif-custom text-xl mt-1 mb-2">${esc(program.title)}</h3>
-        <p class="text-sm text-muted leading-relaxed max-w-md">${esc(program.description)}</p>
+      <div class="card is-hoverable p-7" data-reveal>
+        <span class="num-badge">${esc(program.number)}</span>
+        <h3 class="font-serif-custom text-xl mt-5 mb-2">${esc(program.title)}</h3>
+        <p class="text-sm text-muted leading-relaxed">${esc(program.description)}</p>
       </div>`;
   }
 
@@ -208,42 +217,29 @@
   // ------------------------------------------------------------------
   // Activities (Kegiatan)
   // ------------------------------------------------------------------
-  function activityCoverHTML(activity, aspect) {
-    if (safeUrl(activity.cover)) {
-      return `<img src="${esc(safeUrl(activity.cover))}" alt="${esc(activity.title)}" class="w-full ${aspect} object-cover" loading="lazy">`;
+  const LEAF_ICON = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.5 2 8 0 5.5-4.8 10-10 10Z"/><path d="M2 21c0-3 1.9-5.4 5.1-6.2C9.6 14.2 12 13 13 12"/></svg>';
+
+  function coverHTML(item, aspect, fallbackIcon) {
+    const src = safeUrl(item.cover);
+    if (src) {
+      return `<img src="${esc(src)}" alt="${esc(item.title)}" class="w-full ${aspect} object-cover" loading="lazy">`;
     }
-    return `<div class="w-full ${aspect} bg-surface flex items-center justify-center text-xs text-muted uppercase tracking-widest">Foto kegiatan</div>`;
+    return `<div class="w-full ${aspect} cover-placeholder">${fallbackIcon}</div>`;
   }
 
-  function featuredActivityHTML(activity) {
+  function activityCoverHTML(activity, aspect) {
+    return coverHTML(activity, aspect, LEAF_ICON);
+  }
+
+  function activityCardHTML(activity) {
     return `
-      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group grid md:grid-cols-2 gap-6 md:gap-10 items-center" data-reveal>
+      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="card group flex flex-col" data-reveal data-category="${esc(activity.category || '')}">
         <div class="media-frame">${activityCoverHTML(activity, 'aspect-[4/3]')}</div>
-        <div>
-          <div class="flex items-center gap-3 text-xs text-muted mb-3">
-            <span class="uppercase tracking-widest text-forest font-medium">${esc(activity.category || 'Kegiatan')}</span>
-            <span>&middot;</span>
-            <time datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
-          </div>
-          <h3 class="font-serif-custom text-2xl md:text-3xl mb-3 group-hover:underline decoration-1 underline-offset-4">${esc(activity.title)}</h3>
-          <p class="text-sm text-muted leading-relaxed line-clamp-3 max-w-md">${esc(activity.excerpt || '')}</p>
-          <span class="inline-block mt-4 text-sm font-medium text-forest">Baca selengkapnya &rarr;</span>
-        </div>
-      </a>`;
-  }
-
-  function activityListItemHTML(activity) {
-    return `
-      <a href="./kegiatan-detail.html?id=${encodeURIComponent(activity.id)}" class="group flex gap-4 items-start py-5 border-t border-line" data-reveal data-category="${esc(activity.category || '')}">
-        <div class="media-frame w-24 h-24 md:w-28 md:h-28 shrink-0">${activityCoverHTML(activity, 'w-full h-full')}</div>
-        <div class="min-w-0">
-          <div class="flex items-center gap-3 text-xs text-muted mb-1.5">
-            <span class="uppercase tracking-widest text-forest font-medium">${esc(activity.category || 'Kegiatan')}</span>
-            <span>&middot;</span>
-            <time datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
-          </div>
-          <h3 class="font-serif-custom text-lg md:text-xl mb-1 group-hover:underline decoration-1 underline-offset-4">${esc(activity.title)}</h3>
-          <p class="text-sm text-muted line-clamp-2">${esc(activity.excerpt || '')}</p>
+        <div class="card-body flex flex-col flex-1">
+          <span class="chip self-start mb-3">${esc(activity.category || 'Kegiatan')}</span>
+          <h3 class="font-serif-custom text-lg leading-snug mb-2 group-hover:text-leaf transition">${esc(activity.title)}</h3>
+          <p class="text-sm text-muted leading-relaxed line-clamp-2 mb-4">${esc(activity.excerpt || '')}</p>
+          <time class="text-xs text-muted mt-auto" datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
         </div>
       </a>`;
   }
@@ -257,19 +253,11 @@
   async function renderActivitiesPreview() {
     const container = qs('[data-list="activities-preview"]');
     if (!container) return;
-    const activities = publishedSortedByDate(await ContentRepository.getActivities());
+    const activities = publishedSortedByDate(await ContentRepository.getActivities()).slice(0, 3);
 
-    if (!activities.length) {
-      container.innerHTML = '<p class="text-sm text-muted" data-reveal>Belum ada kegiatan yang dipublikasikan. Nantikan kabar terbaru dari kami.</p>';
-      return;
-    }
-
-    const [featured, ...rest] = activities;
-    const supporting = rest.slice(0, 3);
-    container.innerHTML = `
-      ${featuredActivityHTML(featured)}
-      <div class="mt-10">${supporting.map(activityListItemHTML).join('')}</div>
-    `;
+    container.innerHTML = activities.length
+      ? `<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">${activities.map(activityCardHTML).join('')}</div>`
+      : '<p class="text-sm text-muted" data-reveal>Belum ada kegiatan yang dipublikasikan. Nantikan kabar terbaru dari kami.</p>';
   }
 
   async function renderActivitiesFull() {
@@ -282,7 +270,7 @@
       return;
     }
 
-    container.innerHTML = activities.map(activityListItemHTML).join('');
+    container.innerHTML = `<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">${activities.map(activityCardHTML).join('')}</div>`;
     initCategoryFilter(activities, container, 'activities-category');
   }
 
@@ -291,14 +279,14 @@
   // ------------------------------------------------------------------
   function articleCardHTML(article) {
     return `
-      <a href="./tulisan-detail.html?id=${encodeURIComponent(article.id)}" class="group block p-6 bg-surface rounded-xl" data-reveal data-category="${esc(article.category || '')}">
+      <a href="./tulisan-detail.html?id=${encodeURIComponent(article.id)}" class="card group block p-6" data-reveal data-category="${esc(article.category || '')}">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div class="min-w-0">
-            <span class="text-xs text-forest font-medium uppercase tracking-widest">${esc(article.category || 'Tulisan')}</span>
-            <h3 class="font-serif-custom text-xl mt-1.5 group-hover:underline decoration-1 underline-offset-4">${esc(article.title)}</h3>
+            <span class="chip">${esc(article.category || 'Tulisan')}</span>
+            <h3 class="font-serif-custom text-xl mt-3 group-hover:text-leaf transition">${esc(article.title)}</h3>
             <p class="text-xs text-muted mt-1.5">Ditulis oleh ${esc(article.author || 'Rohis')} &middot; ${esc(article.readTime || '')}</p>
           </div>
-          <span class="text-sm font-medium text-forest shrink-0">Baca selengkapnya &rarr;</span>
+          <span class="text-sm font-semibold text-leaf shrink-0">Baca selengkapnya &rarr;</span>
         </div>
       </a>`;
   }
@@ -338,8 +326,8 @@
     filterBar.innerHTML = ['Semua', ...categories]
       .map(
         (cat, i) => `
-        <button type="button" class="tap-target px-4 py-2 rounded-full text-xs font-medium border border-line transition ${
-          i === 0 ? 'bg-forest text-white border-forest' : 'text-muted hover:border-forest hover:text-forest'
+        <button type="button" class="tap-target px-4 py-2 rounded-full text-xs font-semibold border border-line transition ${
+          i === 0 ? 'bg-forest text-white border-forest' : 'bg-white text-muted hover:border-forest hover:text-forest'
         }" data-cat="${cat === 'Semua' ? '' : esc(cat)}">${esc(cat)}</button>`
       )
       .join('');
@@ -348,10 +336,10 @@
       btn.addEventListener('click', () => {
         qsa('button', filterBar).forEach((b) => {
           b.classList.remove('bg-forest', 'text-white', 'border-forest');
-          b.classList.add('text-muted');
+          b.classList.add('text-muted', 'bg-white');
         });
         btn.classList.add('bg-forest', 'text-white', 'border-forest');
-        btn.classList.remove('text-muted');
+        btn.classList.remove('text-muted', 'bg-white');
 
         const cat = btn.dataset.cat;
         qsa('[data-category]', listContainer).forEach((el) => {
@@ -403,12 +391,12 @@
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
       <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
       <div class="flex items-center gap-3 text-xs text-muted mb-4" data-reveal>
-        <span class="uppercase tracking-widest text-forest font-medium">${esc(activity.category || 'Kegiatan')}</span>
+        <span class="chip">${esc(activity.category || 'Kegiatan')}</span>
         <span>&middot;</span>
         <time datetime="${esc(activity.date)}">${esc(formatDate(activity.date))}</time>
       </div>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mb-8" data-reveal>${esc(activity.title)}</h1>
-      <div class="media-frame mb-10" data-reveal>${activityCoverHTML(activity, 'aspect-[16/9] rounded-xl')}</div>
+      <div class="media-frame mb-10" data-reveal>${activityCoverHTML(activity, 'aspect-[16/9] rounded-3xl')}</div>
       <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${esc(activity.content || '')}</div>
       ${
         gallery.length
@@ -440,12 +428,12 @@
     root.innerHTML = `
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
       <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
-      <span class="text-xs text-forest font-medium uppercase tracking-widest" data-reveal>${esc(article.category || 'Tulisan')}</span>
+      <span class="chip" data-reveal>${esc(article.category || 'Tulisan')}</span>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${esc(article.title)}</h1>
       <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${esc(article.author || 'Rohis')} &middot; ${esc(formatDate(article.date))}${
       article.readTime ? ` &middot; ${esc(article.readTime)}` : ''
     }</p>
-      ${safeUrl(article.cover) ? `<div class="media-frame mb-10" data-reveal><img src="${esc(safeUrl(article.cover))}" alt="${esc(article.title)}" class="w-full aspect-[16/9] object-cover rounded-xl" loading="lazy"></div>` : ''}
+      ${safeUrl(article.cover) ? `<div class="media-frame mb-10" data-reveal><img src="${esc(safeUrl(article.cover))}" alt="${esc(article.title)}" class="w-full aspect-[16/9] object-cover rounded-3xl" loading="lazy"></div>` : ''}
       <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${esc(article.content || '')}</div>
     `;
   }
