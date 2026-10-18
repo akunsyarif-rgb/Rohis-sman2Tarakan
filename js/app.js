@@ -6,8 +6,7 @@
  */
 
 (function () {
-  // Sanitize HTML generated from content records before inserting it into the live DOM.
-  // This is a defense-in-depth filter; use textContent for plain text where practical.
+  // Sanitize content-generated markup before inserting it into the live DOM.
   function sanitizeHTML(html) {
     const doc = new DOMParser().parseFromString(String(html), 'text/html');
     doc.querySelectorAll('script, iframe, object, embed, form, base, meta, link, style, svg, math').forEach((el) => el.remove());
@@ -285,7 +284,7 @@
     container.innerHTML = sanitizeHTML(`
       ${featuredActivityHTML(featured)}
       <div class="mt-10">${supporting.map(activityListItemHTML).join('')}</div>
-    `;
+    `);
   }
 
   async function renderActivitiesFull() {
@@ -294,11 +293,11 @@
     const activities = publishedSortedByDate(await ContentRepository.getActivities());
 
     if (!activities.length) {
-      container.innerHTML = '<p class="text-sm text-muted py-10" data-reveal>Belum ada kegiatan yang dipublikasikan.</p>';
+      container.innerHTML = sanitizeHTML('<p class="text-sm text-muted py-10" data-reveal>Belum ada kegiatan yang dipublikasikan.</p>');
       return;
     }
 
-    container.innerHTML = activities.map(activityListItemHTML).join('');
+    container.innerHTML = sanitizeHTML(activities.map(activityListItemHTML).join(''));
     initCategoryFilter(activities, container, 'activities-category');
   }
 
@@ -312,7 +311,7 @@
           <div class="min-w-0">
             <span class="text-xs text-forest font-medium uppercase tracking-widest">${article.category || 'Tulisan'}</span>
             <h3 class="font-serif-custom text-xl mt-1.5 group-hover:underline decoration-1 underline-offset-4">${article.title}</h3>
-            <p class="text-xs text-muted mt-1.5">Ditulis oleh ${article.author || 'Rohis'} &middot); ${article.readTime || ''}</p>
+            <p class="text-xs text-muted mt-1.5">Ditulis oleh ${article.author || 'Rohis'} &middot; ${article.readTime || ''}</p>
           </div>
           <span class="text-sm font-medium text-forest shrink-0">Baca selengkapnya &rarr;</span>
         </div>
@@ -339,7 +338,7 @@
       return;
     }
 
-    container.innerHTML = sanitizeHTML(`<div class="space-y-4">${articles.map(articleCardHTML).join('')}</div>`;
+    container.innerHTML = sanitizeHTML(`<div class="space-y-4">${articles.map(articleCardHTML).join('')}</div>`);
     initCategoryFilter(articles, container, 'articles-category');
   }
 
@@ -351,14 +350,14 @@
     if (!filterBar) return;
 
     const categories = Array.from(new Set(items.map((i) => i.category).filter(Boolean)));
-    filterBar.innerHTML = ['Semua', ...categories]
+    filterBar.innerHTML = sanitizeHTML(['Semua', ...categories]
       .map(
         (cat, i) => `
         <button type="button" class="tap-target px-4 py-2 rounded-full text-xs font-medium border border-line transition ${
           i === 0 ? 'bg-forest text-white border-forest' : 'text-muted hover:border-forest hover:text-forest'
         }" data-cat="${cat === 'Semua' ? '' : cat}">${cat}</button>`
       )
-      .join('');
+      .join(''));
 
     qsa('button', filterBar).forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -390,11 +389,11 @@
   }
 
   function renderNotFound(root, backHref, label) {
-    root.innerHTML = `
+    root.innerHTML = sanitizeHTML(`
       <div class="text-center py-24">
         <p class="text-sm text-muted mb-4">${label} tidak ditemukan.</p>
-        <a href="${backHref}" class="text-forest font-medium text-sm">&larr); Kembali ke daftar</a>
-      </div>`;
+        <a href="${backHref}" class="text-forest font-medium text-sm">&larr; Kembali ke daftar</a>
+      </div>`);
   }
 
   async function renderActivityDetail() {
@@ -417,7 +416,7 @@
     const gallery = Array.isArray(activity.gallery) ? activity.gallery : [];
     root.innerHTML = sanitizeHTML(`
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr); Kembali ke daftar kegiatan</a>
+      <a href="./kegiatan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke daftar kegiatan</a>
       <div class="flex items-center gap-3 text-xs text-muted mb-4" data-reveal>
         <span class="uppercase tracking-widest text-forest font-medium">${activity.category || 'Kegiatan'}</span>
         <span>&middot;</span>
@@ -433,7 +432,7 @@
               .join('')}</div>`
           : ''
       }
-    `;
+    `);
   }
 
   async function renderArticleDetail() {
@@ -455,7 +454,7 @@
 
     root.innerHTML = sanitizeHTML(`
       ${isPreview() ? '<p class="mb-6 text-xs uppercase tracking-widest text-forest bg-surface inline-block px-3 py-1.5 rounded-full" data-reveal>Mode pratinjau — belum tersimpan</p>' : ''}
-      <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr); Kembali ke Rohis Journal</a>
+      <a href="./tulisan.html" class="text-sm text-muted hover:text-forest inline-block mb-8" data-reveal>&larr; Kembali ke Rohis Journal</a>
       <span class="text-xs text-forest font-medium uppercase tracking-widest" data-reveal>${article.category || 'Tulisan'}</span>
       <h1 class="font-serif-custom text-3xl md:text-5xl leading-tight mt-3 mb-4" data-reveal>${article.title}</h1>
       <p class="text-sm text-muted mb-10" data-reveal>Ditulis oleh ${article.author || 'Rohis'} &middot; ${formatDate(article.date)}${
@@ -463,7 +462,7 @@
     }</p>
       ${article.cover ? `<div class="media-frame mb-10" data-reveal><img src="${article.cover}" alt="${article.title}" class="w-full aspect-[16/9] object-cover rounded-xl" loading="lazy"></div>` : ''}
       <div class="prose-content max-w-2xl text-neutral-800 leading-relaxed space-y-4 whitespace-pre-line" data-reveal>${article.content || ''}</div>
-    `;
+    `);
   }
 
   // ------------------------------------------------------------------
