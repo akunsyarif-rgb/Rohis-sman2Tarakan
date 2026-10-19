@@ -71,12 +71,14 @@
     var t = Math.random();
     var bx = sunX - t * W * 0.45 + rnd(-W * 0.12, W * 0.12);
     var by = sunY + t * H * 0.7 + rnd(-H * 0.12, H * 0.12);
+    var life = rnd(14, 24);                       /* detik */
     return {
-      x: bx, y: anywhere ? by : Math.min(H + 10, by + H * 0.25),
-      r: rnd(0.8, W < 640 ? 1.9 : 2.4),
-      vx: rnd(-4, 7), vy: rnd(-9, -3),           /* px per detik: sangat pelan */
-      a: rnd(0.35, 0.85),
-      ph: rnd(0, Math.PI * 2), sp: rnd(0.4, 1.1)
+      x: bx, y: by,
+      r: rnd(0.8, W < 640 ? 1.8 : 2.2),
+      vx: rnd(-1.2, 2.2), vy: rnd(-3.2, -1.2),    /* px per detik: melayang pelan */
+      a: rnd(0.35, 0.8),
+      ph: rnd(0, Math.PI * 2), sp: rnd(0.5, 1),
+      life: life, age: anywhere ? rnd(0, life) : 0
     };
   }
 
@@ -106,15 +108,18 @@
     for (var i = 0; i < dust.length; i++) {
       var d = dust[i];
       if (dt) {
-        d.x += (d.vx + Math.sin(t * 0.0004 * d.sp + d.ph) * 4) * dt;
+        d.age += dt;
+        /* Ayunan horizontal sangat lambat (periode ~20 detik), tanpa sentakan. */
+        d.x += (d.vx + Math.sin(t * 0.0003 * d.sp + d.ph) * 1.2) * dt;
         d.y += d.vy * dt;
-        if (d.y < -10 || d.x < -10 || d.x > W + 10) dust[i] = d = spawn(false);
+        if (d.age >= d.life) dust[i] = d = spawn(false);
       }
-      /* Lebih terang bila dekat matahari, berkelip pelan. */
+      /* Muncul dan hilang perlahan sepanjang umurnya (tidak pernah "pop"). */
+      var life = reduce ? 1 : Math.sin(Math.PI * Math.min(1, d.age / d.life));
       var dist = Math.hypot(d.x - sunX, d.y - sunY) / Math.max(W, H);
       var near = Math.max(0.25, 1 - dist * 1.3);
-      var tw = reduce ? 1 : 0.65 + 0.35 * Math.sin(t * 0.0015 * d.sp + d.ph);
-      ctx.globalAlpha = Math.min(1, d.a * near * tw);
+      var tw = reduce ? 1 : 0.8 + 0.2 * Math.sin(t * 0.0006 * d.sp + d.ph);
+      ctx.globalAlpha = Math.min(1, d.a * near * tw * life);
       var s = d.r * 4;
       ctx.drawImage(sprite, d.x - s / 2, d.y - s / 2, s, s);
     }

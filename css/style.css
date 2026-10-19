@@ -232,7 +232,7 @@ select:focus-visible,
   mix-blend-mode: screen;
   filter: blur(3px);
   opacity: 0.75;
-  animation: rays-sway 18s ease-in-out infinite alternate;
+  animation: rays-sway 28s ease-in-out infinite alternate;
 }
 
 .hero-dust {
@@ -245,8 +245,8 @@ select:focus-visible,
 }
 
 @keyframes rays-sway {
-  from { transform: rotate(-1.2deg); opacity: 0.6; }
-  to { transform: rotate(1.2deg); opacity: 0.9; }
+  from { transform: rotate(-0.6deg); opacity: 0.68; }
+  to { transform: rotate(0.6deg); opacity: 0.85; }
 }
 
 /* Warm light that slowly "breathes" over the sunrise. */
@@ -555,18 +555,34 @@ a.card:hover,
 }
 
 .journey-warm {
-  background: linear-gradient(180deg, #FBF0DE 0%, #F5E8D4 100%);
-  opacity: calc(var(--journey-warm, 0) * 0.7);
+  background: linear-gradient(180deg, #FAEACB 0%, #F5E1BE 100%);
+  opacity: var(--journey-warm, 0);
+}
+
+/* Cahaya matahari sore yang ikut turun di sudut kanan atas layar. */
+.journey-glow {
+  background: radial-gradient(70% 60% at 88% 4%, rgba(255, 205, 120, 0.55) 0%, rgba(255, 205, 120, 0) 70%);
+  opacity: var(--journey-glow, 0);
 }
 
 .journey-dusk {
-  background: linear-gradient(180deg, #ECE8F1 0%, #DFE5EF 100%);
-  opacity: calc(var(--journey-dusk, 0) * 0.8);
+  background: linear-gradient(180deg, #F4D9CC 0%, #E8D6E6 55%, #DCD8EE 100%);
+  opacity: var(--journey-dusk, 0);
+}
+
+.journey-blue {
+  background: linear-gradient(180deg, #DDE4F2 0%, #CED8EE 100%);
+  opacity: var(--journey-blue, 0);
+}
+
+/* Pita hijau muda dibuat tembus agar perubahan warna terasa di seluruh halaman. */
+.journey-on .section-mist {
+  background-color: rgba(234, 242, 227, 0.5);
 }
 
 .site-footer.has-night {
   overflow: hidden;
-  background: linear-gradient(0deg, var(--color-forest) 0, #1A2C3A 340px) #1A2C3A;
+  background: linear-gradient(180deg, #2A3E5C 0%, #2A3E5C 40%, var(--color-forest) 100%) var(--color-forest);
 }
 
 .night-house {
@@ -577,6 +593,9 @@ a.card:hover,
   max-height: 520px;
   overflow: hidden;
   isolation: isolate;
+  /* Foto memudar langsung ke latar footer: tanpa garis batas. */
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 62%, transparent 100%);
 }
 
 .night-house img {
@@ -587,22 +606,13 @@ a.card:hover,
   max-width: none;
   object-fit: cover;
   object-position: 42% 35%;
-  filter: brightness(0.82) saturate(0.78);
+  filter: brightness(0.98) saturate(0.95);
 }
 
 @media (max-width: 640px) {
   .night-house {
     aspect-ratio: 4 / 3;
   }
-}
-
-/* Bawah adegan memudar ke warna malam footer. */
-.night-house::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(26, 44, 58, 0) 55%, #1A2C3A 100%);
 }
 
 .nh-layer {
@@ -613,24 +623,24 @@ a.card:hover,
 }
 
 .nh-dusk {
-  background: linear-gradient(180deg, #F0A07E 0%, #C98390 45%, #7A5F95 100%);
+  background: linear-gradient(180deg, #F6B48E 0%, #E2A0A0 45%, #A58DBB 100%);
   mix-blend-mode: multiply;
-  opacity: calc(var(--nh-dusk, 0) * 0.8);
+  opacity: calc(var(--nh-dusk, 0) * 0.7);
 }
 
 .nh-night {
-  background: linear-gradient(180deg, #2A3D78 0%, #33477F 50%, #263561 100%);
+  background: linear-gradient(180deg, #5C74B8 0%, #6A7FBA 50%, #56689F 100%);
   mix-blend-mode: multiply;
-  opacity: calc(var(--nh-night, 1) * 0.9);
+  opacity: calc(var(--nh-night, 1) * 0.85);
 }
 
 .nh-silver {
   background:
     radial-gradient(circle at var(--nh-moon-x, 74%) var(--nh-moon-y, 18%),
-      rgba(212, 226, 255, 0.6) 0%, rgba(160, 185, 240, 0.2) 18%, rgba(130, 160, 230, 0) 45%),
-    radial-gradient(32% 24% at var(--nh-roof-x, 40%) var(--nh-roof-y, 30%),
-      rgba(175, 198, 255, 0.3) 0%, rgba(175, 198, 255, 0) 100%),
-    linear-gradient(180deg, rgba(80, 105, 170, 0.22) 0%, rgba(40, 60, 110, 0) 70%);
+      rgba(225, 235, 255, 0.7) 0%, rgba(180, 200, 245, 0.28) 22%, rgba(150, 175, 235, 0) 55%),
+    radial-gradient(38% 28% at var(--nh-roof-x, 40%) var(--nh-roof-y, 30%),
+      rgba(200, 215, 255, 0.35) 0%, rgba(200, 215, 255, 0) 100%),
+    linear-gradient(180deg, rgba(120, 145, 205, 0.28) 0%, rgba(90, 115, 175, 0.08) 75%);
   mix-blend-mode: screen;
   opacity: var(--nh-night, 1);
 }
@@ -658,7 +668,7 @@ a.card:hover,
   height: calc(var(--nh-moon-r, 22px) * 2);
   border-radius: 50%;
   background: radial-gradient(circle at 38% 36%, #FFFDF3 0%, #F3EFDD 48%, #D9D4BF 100%);
-  box-shadow: 0 0 22px 6px rgba(225, 232, 255, 0.5), 0 0 80px 26px rgba(170, 190, 245, 0.25);
+  box-shadow: 0 0 26px 8px rgba(255, 248, 225, 0.55), 0 0 90px 30px rgba(200, 215, 250, 0.3);
   opacity: var(--nh-moon, 1);
 }
 

@@ -18,11 +18,13 @@
   var root = document.documentElement;
 
   /* ---------- 1. Latar halaman ---------- */
-  var warm = document.createElement('div');
-  warm.className = 'journey-tint journey-warm';
-  var dusk = document.createElement('div');
-  dusk.className = 'journey-tint journey-dusk';
-  [warm, dusk].forEach(function (d) { d.setAttribute('aria-hidden', 'true'); document.body.insertBefore(d, document.body.firstChild); });
+  ['journey-blue', 'journey-dusk', 'journey-glow', 'journey-warm'].forEach(function (name) {
+    var d = document.createElement('div');
+    d.className = 'journey-tint ' + name;
+    d.setAttribute('aria-hidden', 'true');
+    document.body.insertBefore(d, document.body.firstChild);
+  });
+  root.classList.add('journey-on');
 
   /* ---------- 2. Adegan malam ---------- */
   var scene = document.querySelector('[data-night-house]');
@@ -85,9 +87,9 @@
     for (var k = 0; k < LAMPS.length; k++) {
       var L = LAMPS[k], lx = X(L[0]), ly = Y(L[1]);
       if (lx < -40 || lx > W + 40 || ly > H * 0.92) continue;
-      var rad = Math.max(26, 64 * s) * L[2];
+      var rad = Math.max(30, 78 * s) * L[2];
       g.push('radial-gradient(' + rad.toFixed(0) + 'px ' + (rad * 0.8).toFixed(0) + 'px at ' + lx.toFixed(0) + 'px ' + ly.toFixed(0) +
-        'px, rgba(255, 202, 118, 0.8) 0%, rgba(255, 172, 84, 0.28) 36%, rgba(255, 172, 84, 0) 100%)');
+        'px, rgba(255, 210, 130, 0.95) 0%, rgba(255, 180, 92, 0.4) 38%, rgba(255, 180, 92, 0) 100%)');
     }
     layers.lamps.style.backgroundImage = g.join(',') || 'none';
 
@@ -133,8 +135,11 @@
 
   function apply() {
     var s = root.style;
-    s.setProperty('--journey-warm', (smooth(0.12, 0.4, cJ) * (1 - smooth(0.55, 0.85, cJ))).toFixed(4));
-    s.setProperty('--journey-dusk', smooth(0.5, 0.95, cJ).toFixed(4));
+    /* Pagi → siang keemasan → sore bercahaya → senja → biru malam. */
+    s.setProperty('--journey-warm', (smooth(0.08, 0.3, cJ) * (1 - smooth(0.5, 0.72, cJ)) * 0.85).toFixed(4));
+    s.setProperty('--journey-glow', (smooth(0.2, 0.42, cJ) * (1 - smooth(0.6, 0.8, cJ))).toFixed(4));
+    s.setProperty('--journey-dusk', (smooth(0.48, 0.7, cJ) * (1 - smooth(0.82, 0.97, cJ)) * 0.9).toFixed(4));
+    s.setProperty('--journey-blue', (smooth(0.78, 0.97, cJ) * 0.85).toFixed(4));
     if (scene) {
       var st = scene.style;
       var night = smooth(0.1, 0.85, cN);
