@@ -217,7 +217,7 @@ select:focus-visible,
 
 .hero.has-photo .hero-bg {
   display: block;
-  animation: hero-drift 24s ease-in-out infinite alternate;
+  animation: hero-drift 14s ease-in-out infinite alternate;
 }
 
 .hero.has-photo .hero-art {
@@ -248,12 +248,12 @@ select:focus-visible,
 
 @keyframes hero-drift {
   from { transform: scale(1); }
-  to { transform: scale(1.07) translate3d(-1.2%, -0.8%, 0); }
+  to { transform: scale(1.13) translate3d(-2%, -1.2%, 0); }
 }
 
 @keyframes sun-breathe {
-  from { opacity: 0.2; }
-  to { opacity: 0.75; }
+  from { opacity: 0.1; }
+  to { opacity: 0.9; }
 }
 
 @keyframes rise-in {
@@ -261,9 +261,14 @@ select:focus-visible,
   to { opacity: 1; transform: none; }
 }
 
+@keyframes fade-only {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes float-soft {
   from { translate: 0 0; }
-  to { translate: 0 -7px; }
+  to { translate: 0 -10px; }
 }
 
 @keyframes page-in {
@@ -590,19 +595,20 @@ a.card:hover,
     transform: none;
   }
 
+  /* Movement off; gentle opacity-only effects stay (no vestibular trigger). */
   .hero-bg,
-  .hero::after,
   .icon-tile img,
   body:not([data-page="kelola"]) {
     animation: none !important;
   }
 
-  .hero.is-prep .hero-in {
-    opacity: 1;
+  .hero::after {
+    animation-duration: 14s;
   }
 
   .hero.is-ready .hero-in {
-    animation: none;
+    animation: fade-only 1100ms ease-out both;
+    animation-delay: var(--hd, 0ms);
   }
 
   html.is-leaving body {

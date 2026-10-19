@@ -489,7 +489,7 @@
 
     // Home hero: hide the copy until content is rendered, with a safety net.
     const heroEl = qs('#hero');
-    if (heroEl && !prefersReducedMotion) {
+    if (heroEl) {
       heroEl.classList.add('is-prep');
       setTimeout(() => heroEl.classList.add('is-ready'), 2500);
     }
