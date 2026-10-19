@@ -110,31 +110,25 @@
     setText(qs('[data-field="footer-school"]'), site.school);
     setText(qs('[data-field="footer-address"]'), site.contact && site.contact.address);
 
-    const ig = qs('[data-field="social-instagram"]');
-    if (ig) {
-      if (site.social && site.social.instagram) {
-        ig.href = safeHref(site.social.instagram, '#');
-        ig.classList.remove('pointer-events-none', 'text-muted/50');
-      } else {
-        ig.href = '#';
-        ig.setAttribute('aria-disabled', 'true');
-        ig.classList.add('pointer-events-none', 'text-muted/50');
-        ig.textContent = 'Instagram (segera hadir)';
-      }
-    }
-
-    const wa = qs('[data-field="social-whatsapp"]');
-    if (wa) {
-      if (site.social && site.social.whatsapp) {
-        wa.href = safeHref(site.social.whatsapp, '#');
-        wa.classList.remove('pointer-events-none', 'text-muted/50');
-      } else {
-        wa.href = '#';
-        wa.setAttribute('aria-disabled', 'true');
-        wa.classList.add('pointer-events-none', 'text-muted/50');
-        wa.textContent = 'WhatsApp (segera hadir)';
-      }
-    }
+    // Social links: set the URL, or mark the link as "coming soon" when empty.
+    const SOCIALS = [
+      { key: 'instagram', label: 'Instagram' },
+      { key: 'tiktok', label: 'TikTok' },
+    ];
+    SOCIALS.forEach(({ key, label }) => {
+      qsa(`[data-field="social-${key}"]`).forEach((link) => {
+        const url = site.social && site.social[key];
+        if (url) {
+          link.href = safeHref(url, '#');
+          link.classList.remove('pointer-events-none', 'text-muted/50');
+        } else {
+          link.href = '#';
+          link.setAttribute('aria-disabled', 'true');
+          link.classList.add('pointer-events-none', 'text-muted/50');
+          link.textContent = `${label} (segera hadir)`;
+        }
+      });
+    });
 
     const email = qs('[data-field="footer-email"]');
     if (email) {

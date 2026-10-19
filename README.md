@@ -101,7 +101,7 @@ membaca draft sementara dari `sessionStorage` — belum tersimpan sampai ditekan
 ## Data placeholder
 
 Beberapa data belum diisi secara faktual (jumlah anggota, tahun berdiri, tautan
-Instagram/WhatsApp resmi, dsb.) dan sengaja dikosongkan/ditandai sebagai placeholder
+Instagram/TikTok resmi, dsb.) dan sengaja dikosongkan/ditandai sebagai placeholder
 alih-alih dikarang. Isi melalui `/kelola/` → Pengaturan, atau langsung edit `data/*.json`.
 
 ## Design tokens
