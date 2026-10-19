@@ -458,6 +458,10 @@
     const page = document.body.dataset.page;
     const site = await ContentRepository.getSite();
     renderFooter(site);
+    qsa('[data-field="motto"]').forEach((el) => {
+      if (site.motto) el.textContent = site.motto;
+      else (el.closest('.hero-motto') || el).classList.add('hidden');
+    });
 
     if (page === 'home') {
       renderHero(site);
