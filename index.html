@@ -58,6 +58,7 @@
     <!-- Hero -->
     <section class="px-4 mt-3">
       <header class="hero max-w-5xl mx-auto px-6 sm:px-12 pt-16 sm:pt-24 pb-24 sm:pb-28" id="hero">
+        <div class="hero-bg" aria-hidden="true"></div>
         <svg class="hero-art" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
           <defs>
             <g id="pine">
@@ -78,14 +79,14 @@
             <use href="#pine" transform="translate(1160 520) scale(1.2)"/>
           </g>
         </svg>
-        <p class="hero-chip mb-6" data-reveal>
+        <p class="hero-chip hero-in mb-6" style="--hd:0ms">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.5 2 8 0 5.5-4.8 10-10 10Z"/></svg>
           <span data-field="hero-eyebrow"></span>
         </p>
-        <h1 class="font-serif-custom text-4xl sm:text-6xl leading-[1.1] mb-5 max-w-2xl" data-field="hero-headline" data-reveal></h1>
-        <p class="max-w-xl text-base sm:text-lg leading-relaxed mb-5 text-white/90" data-field="hero-description" data-reveal></p>
-        <p class="hero-motto mb-8" data-reveal><span data-field="motto"></span></p>
-        <div class="flex flex-wrap items-center gap-3" data-reveal>
+        <h1 class="font-serif-custom text-4xl sm:text-6xl leading-[1.1] mb-5 max-w-2xl hero-in" style="--hd:120ms" data-field="hero-headline"></h1>
+        <p class="max-w-xl text-base sm:text-lg leading-relaxed mb-5 text-white/90 hero-in" style="--hd:240ms" data-field="hero-description"></p>
+        <p class="hero-motto hero-in mb-8" style="--hd:360ms"><span data-field="motto"></span></p>
+        <div class="flex flex-wrap items-center gap-3 hero-in" style="--hd:480ms">
           <a href="#kontak" data-field="hero-cta" class="btn-solid tap-target px-6 py-2.5 text-sm"></a>
           <a href="./tentang.html" class="btn-ghost tap-target px-6 py-2.5 text-sm">Kenali Kami</a>
         </div>
