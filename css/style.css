@@ -224,14 +224,29 @@ select:focus-visible,
   display: none;
 }
 
-/* Bintang geometris 3D (js/hero-3d.js): garis tipis di atas foto, di bawah teks. */
-.hero-3d {
+/* Cahaya pagi (js/hero-light.js): sinar lembut di dalam .hero-bg + debu emas di canvas. */
+.hero-rays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  filter: blur(3px);
+  opacity: 0.75;
+  animation: rays-sway 18s ease-in-out infinite alternate;
+}
+
+.hero-dust {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   z-index: -1;
   pointer-events: none;
+}
+
+@keyframes rays-sway {
+  from { transform: rotate(-1.2deg); opacity: 0.6; }
+  to { transform: rotate(1.2deg); opacity: 0.9; }
 }
 
 /* Warm light that slowly "breathes" over the sunrise. */
@@ -526,6 +541,128 @@ a.card:hover,
 }
 
 /* ---------------------------------------------------------------- */
+/* Perjalanan waktu: latar halaman + rumah malam di footer           */
+/* (js/night-house.js). Foto = aset hero yang sama.                  */
+/* ---------------------------------------------------------------- */
+
+.journey-tint {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.journey-warm {
+  background: linear-gradient(180deg, #FBF0DE 0%, #F5E8D4 100%);
+  opacity: calc(var(--journey-warm, 0) * 0.7);
+}
+
+.journey-dusk {
+  background: linear-gradient(180deg, #ECE8F1 0%, #DFE5EF 100%);
+  opacity: calc(var(--journey-dusk, 0) * 0.8);
+}
+
+.site-footer.has-night {
+  overflow: hidden;
+  background: linear-gradient(0deg, var(--color-forest) 0, #1A2C3A 340px) #1A2C3A;
+}
+
+.night-house {
+  position: relative;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  max-height: 520px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.night-house img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  object-position: 42% 35%;
+  filter: brightness(0.82) saturate(0.78);
+}
+
+@media (max-width: 640px) {
+  .night-house {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Bawah adegan memudar ke warna malam footer. */
+.night-house::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(26, 44, 58, 0) 55%, #1A2C3A 100%);
+}
+
+.nh-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.nh-dusk {
+  background: linear-gradient(180deg, #F0A07E 0%, #C98390 45%, #7A5F95 100%);
+  mix-blend-mode: multiply;
+  opacity: calc(var(--nh-dusk, 0) * 0.8);
+}
+
+.nh-night {
+  background: linear-gradient(180deg, #2A3D78 0%, #33477F 50%, #263561 100%);
+  mix-blend-mode: multiply;
+  opacity: calc(var(--nh-night, 1) * 0.9);
+}
+
+.nh-silver {
+  background:
+    radial-gradient(circle at var(--nh-moon-x, 74%) var(--nh-moon-y, 18%),
+      rgba(212, 226, 255, 0.6) 0%, rgba(160, 185, 240, 0.2) 18%, rgba(130, 160, 230, 0) 45%),
+    radial-gradient(32% 24% at var(--nh-roof-x, 40%) var(--nh-roof-y, 30%),
+      rgba(175, 198, 255, 0.3) 0%, rgba(175, 198, 255, 0) 100%),
+    linear-gradient(180deg, rgba(80, 105, 170, 0.22) 0%, rgba(40, 60, 110, 0) 70%);
+  mix-blend-mode: screen;
+  opacity: var(--nh-night, 1);
+}
+
+.nh-lamps {
+  mix-blend-mode: screen;
+  opacity: var(--nh-lamp, 1);
+}
+
+.nh-stars {
+  inset: auto;
+  left: 0;
+  top: 0;
+  width: 1.4px;
+  height: 1.4px;
+  border-radius: 50%;
+  opacity: calc(var(--nh-moon, 1) * 0.85);
+}
+
+.nh-moon {
+  inset: auto;
+  left: calc(var(--nh-moon-x, 74%) - var(--nh-moon-r, 22px));
+  top: calc(var(--nh-moon-y, 18%) - var(--nh-moon-r, 22px));
+  width: calc(var(--nh-moon-r, 22px) * 2);
+  height: calc(var(--nh-moon-r, 22px) * 2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #FFFDF3 0%, #F3EFDD 48%, #D9D4BF 100%);
+  box-shadow: 0 0 22px 6px rgba(225, 232, 255, 0.5), 0 0 80px 26px rgba(170, 190, 245, 0.25);
+  opacity: var(--nh-moon, 1);
+}
+
+/* ---------------------------------------------------------------- */
 /* Image hover                                                       */
 /* ---------------------------------------------------------------- */
 
@@ -607,6 +744,7 @@ a.card:hover,
 
   /* Movement off; gentle opacity-only effects stay (no vestibular trigger). */
   .hero-bg,
+  .hero-rays,
   .icon-tile img,
   body:not([data-page="kelola"]) {
     animation: none !important;
