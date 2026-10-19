@@ -234,6 +234,84 @@ select:focus-visible,
   pointer-events: none;
 }
 
+/* Siang → senja → malam (js/hero-daynight.js). Lapisan ada di dalam .hero-bg,
+   jadi ikut drift foto. Opacity dikendalikan CSS variable dari progres scroll. */
+/* Parallax ringan: `translate` berdiri sendiri, jadi tetap menyatu dengan animasi drift (transform). */
+.hero.dn-on .hero-bg {
+  translate: 0 var(--dn-shift, 0px);
+}
+
+.dn-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.dn-glow {
+  background: radial-gradient(circle at var(--dn-sun-x, 74%) var(--dn-sun-y, 22%),
+    rgba(255, 226, 160, 0.75) 0%, rgba(255, 205, 120, 0.32) 22%, rgba(255, 200, 120, 0) 55%);
+  mix-blend-mode: screen;
+  opacity: var(--dn-glow, 0);
+  transform: scale(var(--dn-zoom, 1));
+  transform-origin: var(--dn-sun-x, 74%) var(--dn-sun-y, 22%);
+}
+
+.dn-dusk {
+  background: linear-gradient(180deg, #ffb27a 0%, #f0978a 42%, #9a78a8 100%);
+  mix-blend-mode: multiply;
+  opacity: calc(var(--dn-dusk, 0) * 0.85);
+}
+
+.dn-night {
+  background: linear-gradient(180deg, #2a3d78 0%, #33477f 50%, #263561 100%);
+  mix-blend-mode: multiply;
+  opacity: calc(var(--dn-night, 0) * 0.92);
+}
+
+.dn-moonlight {
+  background:
+    radial-gradient(circle at var(--dn-moon-x, 72%) var(--dn-moon-y, 14%),
+      rgba(205, 220, 255, 0.55) 0%, rgba(150, 175, 235, 0.2) 18%, rgba(120, 150, 220, 0) 45%),
+    linear-gradient(180deg, rgba(70, 95, 160, 0.22) 0%, rgba(40, 60, 110, 0.08) 100%);
+  mix-blend-mode: screen;
+  opacity: var(--dn-night, 0);
+}
+
+.dn-lamps {
+  mix-blend-mode: screen;
+  opacity: var(--dn-lamp, 0);
+}
+
+.dn-stars {
+  inset: auto;
+  left: 0;
+  top: 0;
+  width: 1.4px;
+  height: 1.4px;
+  border-radius: 50%;
+  opacity: calc(var(--dn-moon, 0) * 0.85);
+}
+
+.dn-moon {
+  inset: auto;
+  left: calc(var(--dn-moon-x, 72%) - var(--dn-moon-r, 20px));
+  top: calc(var(--dn-moon-y, 14%) - var(--dn-moon-r, 20px));
+  width: calc(var(--dn-moon-r, 20px) * 2);
+  height: calc(var(--dn-moon-r, 20px) * 2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 36%, #fffdf3 0%, #f3efdd 48%, #d9d4bf 100%);
+  box-shadow: 0 0 18px 4px rgba(225, 232, 255, 0.45), 0 0 60px 18px rgba(170, 190, 245, 0.22);
+  opacity: var(--dn-moon, 0);
+}
+
+/* Cahaya "napas" matahari ikut padam saat malam. */
+.hero.dn-on::after {
+  background: radial-gradient(48% 55% at 74% 18%,
+    rgba(255, 214, 130, calc(0.55 * (1 - var(--dn-night, 0)))) 0%, rgba(255, 214, 130, 0) 70%);
+}
+
 /* Warm light that slowly "breathes" over the sunrise. */
 .hero::after {
   content: '';
