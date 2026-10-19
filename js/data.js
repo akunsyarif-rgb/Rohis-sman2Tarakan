@@ -264,5 +264,14 @@
     return v;
   }
 
-  global.RohisUtil = { slugify, escapeHtml, safeUrl };
+  // Periode kepengurusan. Diisi manual jika ada; jika kosong, otomatis dari
+  // tahun pada tanggal (pergantian pengurus biasanya Desember-Januari).
+  function periodOf(item) {
+    const manual = String((item && item.period) || '').trim();
+    if (manual) return manual;
+    const year = String((item && item.date) || '').slice(0, 4);
+    return /^\d{4}$/.test(year) ? year : '';
+  }
+
+  global.RohisUtil = { slugify, escapeHtml, safeUrl, periodOf };
 })(window);

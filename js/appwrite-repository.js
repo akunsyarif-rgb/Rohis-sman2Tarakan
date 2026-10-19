@@ -151,6 +151,7 @@
   // ------------------------------------------------------------------
   // Pemetaan baris <-> objek yang dipakai UI
   // ------------------------------------------------------------------
+  const periodOf = (item) => (global.RohisUtil ? global.RohisUtil.periodOf(item) : '');
   const clip = (value, max) => String(value == null ? '' : value).slice(0, max);
 
   function stamp(row, item) {
@@ -172,6 +173,7 @@
           cover: row.cover || '',
           excerpt: row.excerpt || '',
           content: row.content || '',
+          period: row.period || '',
           status: row.status || 'draft',
         });
       },
@@ -183,6 +185,7 @@
           cover: clip(a.cover, 2000),
           excerpt: String(a.excerpt || ''),
           content: String(a.content || ''),
+          period: clip(periodOf(a), 20),
           status: clip(a.status || 'draft', 20),
         };
       },
@@ -202,6 +205,7 @@
           content: row.content || '',
           readTime: row.readTime || '',
           edition: row.edition || '',
+          period: row.period || '',
           status: row.status || 'draft',
         });
       },
@@ -216,6 +220,7 @@
           content: String(a.content || ''),
           readTime: clip(a.readTime, 40),
           edition: clip(a.edition, 60),
+          period: clip(periodOf(a), 20),
           status: clip(a.status || 'draft', 20),
         };
       },

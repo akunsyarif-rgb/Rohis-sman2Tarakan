@@ -167,7 +167,7 @@
             (a) => `
         <div class="admin-row py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
           <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${esc(formatDate(a.date))}</span></div>
+            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${esc(formatDate(a.date))} &middot; Periode ${esc(RohisUtil.periodOf(a) || '—')}</span></div>
             <p class="font-medium truncate">${esc(a.title)}</p>
             <p class="text-xs text-muted truncate">${esc(a.category || '')}</p>
           </div>
@@ -213,6 +213,7 @@
         form.elements.title.value = activity.title || '';
         form.elements.date.value = (activity.date || '').slice(0, 10);
         form.elements.category.value = activity.category || '';
+        form.elements.period.value = activity.period || '';
         form.elements.excerpt.value = activity.excerpt || '';
         form.elements.cover.value = activity.cover || '';
         form.elements.content.value = activity.content || '';
@@ -237,6 +238,7 @@
       title: data.title,
       date: data.date,
       category: data.category,
+      period: data.period,
       excerpt: data.excerpt,
       cover: data.cover,
       content: data.content,
@@ -252,7 +254,7 @@
       try {
         await ContentRepository.saveActivity(activity);
       } catch (err) {
-        toast('Gagal menyimpan — penyimpanan lokal penuh. Ekspor data lalu hapus gambar besar.');
+        toast('Gagal menyimpan: ' + RohisAuth.friendly(err));
         return;
       }
       toast('Kegiatan disimpan.');
@@ -280,7 +282,7 @@
             (a) => `
         <div class="admin-row py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 justify-between">
           <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${esc(formatDate(a.date))}</span></div>
+            <div class="flex items-center gap-2 mb-1">${badge(a.status, 'Published', 'Draft')}<span class="text-xs text-muted">${esc(formatDate(a.date))} &middot; Periode ${esc(RohisUtil.periodOf(a) || '—')}</span></div>
             <p class="font-medium truncate">${esc(a.title)}</p>
             <p class="text-xs text-muted truncate">${esc(a.author || '')} &middot; ${esc(a.category || '')}</p>
           </div>
@@ -329,6 +331,7 @@
         form.elements.edition.value = article.edition || '';
         form.elements.date.value = (article.date || '').slice(0, 10);
         form.elements.category.value = article.category || '';
+        form.elements.period.value = article.period || '';
         form.elements.cover.value = article.cover || '';
         form.elements.excerpt.value = article.excerpt || '';
         form.elements.content.value = article.content || '';
@@ -348,6 +351,7 @@
       edition: data.edition,
       date: data.date,
       category: data.category,
+      period: data.period,
       cover: data.cover,
       excerpt: data.excerpt,
       content: data.content,
@@ -363,7 +367,7 @@
       try {
         await ContentRepository.saveArticle(article);
       } catch (err) {
-        toast('Gagal menyimpan — penyimpanan lokal penuh. Ekspor data lalu hapus gambar besar.');
+        toast('Gagal menyimpan: ' + RohisAuth.friendly(err));
         return;
       }
       toast(article.status === 'published' ? 'Tulisan diterbitkan.' : 'Draft tersimpan.');
@@ -468,7 +472,7 @@
         order: Number(data.order) || 0,
       });
       } catch (err) {
-        toast('Gagal menyimpan — penyimpanan lokal penuh.');
+        toast('Gagal menyimpan: ' + RohisAuth.friendly(err));
         return;
       }
       toast('Program disimpan.');

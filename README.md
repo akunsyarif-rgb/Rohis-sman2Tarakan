@@ -78,7 +78,7 @@ meminta kode tetapi ditolak dan tidak bisa mengubah apa pun.
 Fitur:
 
 - **Dashboard** — jumlah kegiatan/tulisan/program/media dan aktivitas terbaru.
-- **Kegiatan** dan **Tulisan** — tambah/edit/hapus, draf atau terbitkan, pratinjau.
+- **Kegiatan** dan **Tulisan** — tambah/edit/hapus, draf atau terbitkan, pratinjau. Setiap item punya **Periode kepengurusan** (kolom `period`); jika dikosongkan, otomatis dari tahun tanggal (pergantian pengurus biasanya Desember–Januari). Halaman publik menampilkan periode terbaru lebih dulu, dengan pilihan periode sebelumnya sebagai arsip.
 - **Program** — tambah/edit/hapus/aktifkan-nonaktifkan.
 - **Media** — unggah gambar ke Appwrite Storage (foto besar otomatis diperkecil ke
   ±1600px sebelum diunggah; batas 5 MB), pilih sebagai cover.
