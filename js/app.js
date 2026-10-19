@@ -23,6 +23,23 @@
     return u && (u.startsWith('#') || RohisUtil.safeUrl(u)) ? u : fallback;
   };
 
+  // Tautan luar dibuka di tab baru; tautan internal tetap di halaman yang sama.
+  function setLink(el, url, fallback) {
+    if (!el) return;
+    const href = safeHref(url, fallback);
+    if (href) el.href = href;
+    if (/^https?:/i.test(el.getAttribute('href') || '')) {
+      el.target = '_blank';
+      el.rel = 'noopener noreferrer';
+    }
+  }
+
+  // Semua tombol "Gabung" mengikuti satu alamat: Pengaturan -> Bergabung.
+  function applyJoinLinks(site) {
+    const url = site.join && site.join.ctaUrl;
+    qsa('[data-join-link]').forEach((el) => setLink(el, url, el.getAttribute('href')));
+  }
+
   function setText(el, value) {
     if (el && value != null) el.textContent = value;
   }
@@ -190,7 +207,7 @@
     const cta = qs('[data-field="hero-cta"]');
     if (cta) {
       setText(cta, hero.ctaLabel);
-      cta.href = safeHref(hero.ctaUrl, '#kontak');
+      setLink(cta, hero.ctaUrl, '#kontak');
     }
 
     if (heroEl) {
@@ -213,7 +230,7 @@
     const cta = qs('[data-field="join-cta"]');
     if (cta) {
       setText(cta, join.ctaLabel);
-      cta.href = safeHref(join.ctaUrl, '#kontak');
+      setLink(cta, join.ctaUrl, '#kontak');
     }
   }
 
@@ -491,6 +508,7 @@
     const page = document.body.dataset.page;
     const site = await ContentRepository.getSite();
     renderFooter(site);
+    applyJoinLinks(site);
     qsa('[data-field="motto"]').forEach((el) => {
       if (site.motto) el.textContent = site.motto;
       else (el.closest('.hero-motto') || el).classList.add('hidden');
