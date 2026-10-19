@@ -38,6 +38,31 @@
   // ------------------------------------------------------------------
   // Navbar: transparent -> ivory on scroll, mobile menu toggle
   // ------------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // Page transitions: fade out before following an internal page link
+  // ------------------------------------------------------------------
+  function initPageTransitions() {
+    window.addEventListener('pageshow', () => document.documentElement.classList.remove('is-leaving'));
+    if (prefersReducedMotion) return;
+
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest && e.target.closest('a[href]');
+      if (!link || e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (link.target && link.target !== '_self') return;
+      if (link.hasAttribute('download')) return;
+
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      // Same-page anchors keep their normal smooth scroll.
+      if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+
+      e.preventDefault();
+      document.documentElement.classList.add('is-leaving');
+      setTimeout(() => { window.location.href = url.href; }, 180);
+    });
+  }
+
   function initNav() {
     const page = document.body.dataset.page;
     const rootPage = page === 'kegiatan-detail' ? 'kegiatan' : page === 'tulisan-detail' ? 'tulisan' : page;
@@ -156,8 +181,9 @@
     // Optional photo: when site.hero.image is set it replaces the illustrated landscape.
     const heroEl = qs('#hero');
     const photo = safeUrl(hero.image);
-    if (heroEl && photo) {
-      heroEl.style.backgroundImage = `linear-gradient(180deg, rgba(20, 40, 26, 0.55) 0%, rgba(20, 40, 26, 0.2) 55%, rgba(20, 40, 26, 0.6) 100%), url("${encodeURI(photo)}")`;
+    const photoLayer = heroEl && qs('.hero-bg', heroEl);
+    if (photoLayer && photo) {
+      photoLayer.style.backgroundImage = `linear-gradient(180deg, rgba(20, 40, 26, 0.55) 0%, rgba(20, 40, 26, 0.2) 55%, rgba(20, 40, 26, 0.6) 100%), url("${encodeURI(photo)}")`;
       heroEl.classList.add('has-photo');
     }
 
@@ -165,6 +191,11 @@
     if (cta) {
       setText(cta, hero.ctaLabel);
       cta.href = safeHref(hero.ctaUrl, '#kontak');
+    }
+
+    if (heroEl) {
+      // Let the browser paint the hidden state first so the entrance animates.
+      requestAnimationFrame(() => heroEl.classList.add('is-ready'));
     }
   }
 
@@ -448,6 +479,14 @@
   // ------------------------------------------------------------------
   async function boot() {
     initNav();
+    initPageTransitions();
+
+    // Home hero: hide the copy until content is rendered, with a safety net.
+    const heroEl = qs('#hero');
+    if (heroEl) {
+      heroEl.classList.add('is-prep');
+      setTimeout(() => heroEl.classList.add('is-ready'), 2500);
+    }
 
     const page = document.body.dataset.page;
     const site = await ContentRepository.getSite();

@@ -65,8 +65,15 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Fade out before leaving to another page (see initPageTransitions). */
+html.is-leaving body {
+  opacity: 0;
+  transition: opacity 180ms ease-in;
+}
+
 /* Short pages: keep the footer at the bottom of the viewport. */
 body:not([data-page="kelola"]) {
+  animation: page-in 350ms ease-out both;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -192,13 +199,81 @@ select:focus-visible,
   background-position: center;
 }
 
-/* Photo is set inline by app.js (resolves against the page URL). */
+/* Photo layer (set inline by app.js; resolves against the page URL). */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: none;
+  background-size: cover;
+  background-position: center;
+  transform-origin: 60% 40%;
+  will-change: transform;
+}
+
 .hero.has-photo {
   min-height: 34rem;
 }
 
+.hero.has-photo .hero-bg {
+  display: block;
+  animation: hero-drift 14s ease-in-out infinite alternate;
+}
+
 .hero.has-photo .hero-art {
   display: none;
+}
+
+/* Warm light that slowly "breathes" over the sunrise. */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(48% 55% at 74% 18%, rgba(255, 214, 130, 0.55) 0%, rgba(255, 214, 130, 0) 70%);
+  opacity: 0.35;
+  animation: sun-breathe 8s ease-in-out infinite alternate;
+}
+
+/* Hero copy rises in one piece at a time once content has rendered. */
+.hero.is-prep .hero-in {
+  opacity: 0;
+}
+
+.hero.is-ready .hero-in {
+  animation: rise-in 900ms var(--ease-editorial) both;
+  animation-delay: var(--hd, 0ms);
+}
+
+@keyframes hero-drift {
+  from { transform: scale(1); }
+  to { transform: scale(1.13) translate3d(-2%, -1.2%, 0); }
+}
+
+@keyframes sun-breathe {
+  from { opacity: 0.1; }
+  to { opacity: 0.9; }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes fade-only {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float-soft {
+  from { translate: 0 0; }
+  to { translate: 0 -10px; }
+}
+
+@keyframes page-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .hero-art {
@@ -278,7 +353,12 @@ select:focus-visible,
 
 .icon-tile img {
   transition: transform 350ms var(--ease-editorial);
+  animation: float-soft 4.5s ease-in-out infinite alternate;
 }
+
+.icon-tile:nth-child(2) img { animation-delay: -1.1s; animation-duration: 5.2s; }
+.icon-tile:nth-child(3) img { animation-delay: -2.3s; animation-duration: 4.8s; }
+.icon-tile:nth-child(4) img { animation-delay: -3.4s; animation-duration: 5.6s; }
 
 .icon-tile:hover img {
   transform: translateY(-4px) scale(1.04);
@@ -513,5 +593,26 @@ a.card:hover,
 
   .media-frame:hover img {
     transform: none;
+  }
+
+  /* Movement off; gentle opacity-only effects stay (no vestibular trigger). */
+  .hero-bg,
+  .icon-tile img,
+  body:not([data-page="kelola"]) {
+    animation: none !important;
+  }
+
+  .hero::after {
+    animation-duration: 14s;
+  }
+
+  .hero.is-ready .hero-in {
+    animation: fade-only 1100ms ease-out both;
+    animation-delay: var(--hd, 0ms);
+  }
+
+  html.is-leaving body {
+    opacity: 1;
+    transition: none;
   }
 }
