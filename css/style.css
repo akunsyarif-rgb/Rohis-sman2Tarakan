@@ -258,6 +258,24 @@ select:focus-visible,
   flex-shrink: 0;
 }
 
+.hero-motto {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding-left: 0.9rem;
+  border-left: 3px solid rgba(255, 255, 255, 0.7);
+  color: #fff;
+}
+
+.motto-card {
+  background: linear-gradient(160deg, #EAF2E3 0%, #DCEBD3 100%);
+  color: var(--color-forest);
+  border-radius: 2rem;
+  box-shadow: var(--shadow-soft);
+}
+
 .icon-tile img {
   transition: transform 350ms var(--ease-editorial);
 }
