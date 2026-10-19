@@ -224,6 +224,16 @@ select:focus-visible,
   display: none;
 }
 
+/* Bintang geometris 3D (js/hero-3d.js): garis tipis di atas foto, di bawah teks. */
+.hero-3d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
 /* Warm light that slowly "breathes" over the sunrise. */
 .hero::after {
   content: '';
