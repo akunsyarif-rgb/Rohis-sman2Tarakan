@@ -1,11 +1,9 @@
 /**
- * Admin workspace (prototype). All persistence goes through
- * ContentRepository (js/data.js) — this file only handles UI wiring,
- * so swapping the localStorage-backed repository for a Supabase one
- * later does not require touching this file's structure.
+ * Admin workspace. Semua penyimpanan lewat ContentRepository
+ * (js/appwrite-repository.js) — file ini hanya mengurus tampilan.
  *
- * This is a local/static prototype: there is no authentication and
- * no server. Changes made here are stored in this browser only.
+ * Akses dijaga di dua lapis: layar masuk (kode 6 angka lewat email) dan,
+ * yang sebenarnya menentukan, izin tulis di Appwrite (tim `pengurus`).
  */
 
 (function () {
@@ -482,7 +480,41 @@
   // --------------------------------------------------------------------
   // Media library (prototype: dataURL stored in localStorage)
   // --------------------------------------------------------------------
-  const MAX_MEDIA_BYTES = 350 * 1024;
+  const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // batas bucket
+  const MAX_EDGE = 1600; // sisi terpanjang setelah diperkecil (px)
+  const KEEP_AS_IS_BYTES = 700 * 1024;
+
+  /**
+   * Foto dari iPad bisa 3–8 MB. Perkecil ke JPEG ±1600px sebelum diunggah
+   * supaya halaman publik tetap ringan. GIF dibiarkan (agar tetap animasi).
+   */
+  async function prepareImage(file) {
+    const baseName = file.name.replace(/\.[^.]+$/, '') || 'gambar';
+    if (file.type === 'image/gif') return { blob: file, name: file.name };
+    let bitmap = null;
+    try {
+      bitmap = await createImageBitmap(file);
+    } catch (err) {
+      bitmap = null;
+    }
+    if (!bitmap) return { blob: file, name: file.name };
+    const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && file.size <= KEEP_AS_IS_BYTES) {
+      bitmap.close && bitmap.close();
+      return { blob: file, name: file.name };
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close && bitmap.close();
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+    if (!blob) return { blob: file, name: file.name };
+    return { blob, name: baseName + '.jpg' };
+  }
 
   function mediaThumbHTML(item, selectable) {
     return `
@@ -522,21 +554,23 @@
       const file = e.target.files[0];
       e.target.value = '';
       if (!file) return;
-      if (file.size > MAX_MEDIA_BYTES) {
-        toast(`Gambar terlalu besar (maks ${Math.round(MAX_MEDIA_BYTES / 1024)}KB untuk prototipe lokal).`);
+      if (!/^image\//.test(file.type)) {
+        toast('Hanya file gambar yang bisa diunggah.');
         return;
       }
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          await ContentRepository.saveMedia({ name: file.name, dataUrl: reader.result, size: file.size });
-          toast('Gambar diunggah.');
-          loadMediaList();
-        } catch (err) {
-          toast('Gagal menyimpan gambar — penyimpanan lokal penuh.');
+      toast('Mengunggah…');
+      try {
+        const prepared = await prepareImage(file);
+        if (prepared.blob.size > MAX_UPLOAD_BYTES) {
+          toast('Gambar terlalu besar (maks 5 MB).');
+          return;
         }
-      };
-      reader.readAsDataURL(file);
+        await ContentRepository.saveMedia(prepared);
+        toast('Gambar diunggah.');
+        loadMediaList();
+      } catch (err) {
+        toast('Gagal mengunggah: ' + RohisAuth.friendly(err));
+      }
     });
   }
 
@@ -678,9 +712,117 @@
   }
 
   // --------------------------------------------------------------------
+  // Login (kode 6 angka lewat email)
+  // --------------------------------------------------------------------
+  const gate = qs('#login-gate');
+
+  function gateState(name) {
+    qsa('[data-login-state]', gate).forEach((el) => { el.hidden = el.dataset.loginState !== name; });
+    gate.hidden = false;
+    const focusTarget = { email: '#login-email', code: '#login-code' }[name];
+    if (focusTarget) setTimeout(() => qs(focusTarget, gate).focus(), 50);
+  }
+
+  function gateError(message) {
+    const el = qs('[data-login-error]', gate);
+    el.textContent = message || '';
+    el.hidden = !message;
+  }
+
+  /** Menampilkan layar masuk sampai pengurus terdaftar berhasil login. */
+  function requireLogin() {
+    return new Promise((resolve) => {
+      let userId = null;
+      let email = '';
+      const emailForm = qs('form[data-login-state="email"]', gate);
+      const codeForm = qs('form[data-login-state="code"]', gate);
+
+      function done(session) {
+        qsa('[data-user-email]').forEach((el) => { el.textContent = session.user.email || ''; });
+        gate.hidden = true;
+        resolve(session);
+      }
+
+      function handleSession(session) {
+        if (!session) return false;
+        if (session.member) { done(session); return true; }
+        qsa('[data-login-email]', gate).forEach((el) => { el.textContent = session.user.email; });
+        gateError('');
+        gateState('denied');
+        return true;
+      }
+
+      function busy(form, on) {
+        qsa('button, input', form).forEach((el) => { el.disabled = on; });
+      }
+
+      emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        email = qs('#login-email').value.trim();
+        if (!/^\S+@\S+\.\S+$/.test(email)) { gateError('Masukkan alamat email yang valid.'); return; }
+        gateError('');
+        busy(emailForm, true);
+        try {
+          userId = await RohisAuth.sendCode(email);
+          qsa('[data-login-email]', gate).forEach((el) => { el.textContent = email; });
+          qs('#login-code').value = '';
+          gateState('code');
+        } catch (err) {
+          gateError(RohisAuth.friendly(err));
+        } finally {
+          busy(emailForm, false);
+        }
+      });
+
+      codeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = qs('#login-code').value.trim();
+        if (!code) { gateError('Masukkan kode dari email.'); return; }
+        gateError('');
+        busy(codeForm, true);
+        try {
+          const session = await RohisAuth.verify(userId, code);
+          if (!handleSession(session)) gateError('Login gagal. Coba kirim kode baru.');
+        } catch (err) {
+          gateError(RohisAuth.friendly(err));
+        } finally {
+          busy(codeForm, false);
+        }
+      });
+
+      qs('[data-login-back]', gate).addEventListener('click', () => { gateError(''); gateState('email'); });
+      qs('[data-login-logout]', gate).addEventListener('click', async () => {
+        await RohisAuth.logout();
+        gateError('');
+        gateState('email');
+      });
+
+      // Sesi lama yang masih berlaku -> langsung masuk.
+      gateState('loading');
+      RohisAuth.me()
+        .then((session) => { if (!handleSession(session)) gateState('email'); })
+        .catch((err) => { gateState('email'); gateError(RohisAuth.friendly(err)); });
+
+      // Sesi habis saat bekerja -> kembali ke layar masuk.
+      window.addEventListener('rohis:auth-expired', () => {
+        if (!gate.hidden) return;
+        gateError('Sesi habis. Silakan masuk lagi.');
+        gateState('email');
+      });
+    });
+  }
+
+  // --------------------------------------------------------------------
   // Boot
   // --------------------------------------------------------------------
-  document.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('unhandledrejection', (e) => {
+    const err = e.reason;
+    if (err && err.status === 401) return; // ditangani layar masuk
+    console.error(err);
+    toast('Gagal: ' + RohisAuth.friendly(err));
+  });
+
+  document.addEventListener('DOMContentLoaded', async () => {
     initSidebarToggle();
     initQuickActions();
     initActivityForm();
@@ -690,7 +832,15 @@
     initMediaPicker();
     initSettingsForm();
     initDataExport();
+    qsa('[data-action="logout"]').forEach((btn) =>
+      btn.addEventListener('click', async () => {
+        await RohisAuth.logout();
+        window.location.reload();
+      })
+    );
     window.addEventListener('hashchange', renderView);
+
+    await requireLogin();
     renderView();
   });
 })();

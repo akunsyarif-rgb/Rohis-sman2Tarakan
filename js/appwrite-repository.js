@@ -1,0 +1,532 @@
+/**
+ * Appwrite-backed ContentRepository.
+ *
+ * Dimuat setelah js/data.js. Menggantikan `window.ContentRepository`
+ * dengan repository yang membaca/menulis ke Appwrite lewat REST, tanpa
+ * SDK atau CDN tambahan:
+ *
+ *  - Halaman publik: hanya membaca. Baris berstatus published/active bisa
+ *    dibaca siapa saja; draft hanya terlihat oleh tim `pengurus`. Jika
+ *    Appwrite tidak terjangkau, otomatis kembali ke data/*.json supaya
+ *    situs tetap tampil.
+ *  - Halaman Kelola: login dengan kode 6 angka yang dikirim ke email,
+ *    lalu menulis ke database. Izin tulis dijaga oleh Appwrite
+ *    (team:pengurus), bukan oleh kode di browser ini.
+ *
+ * Tidak ada rahasia di file ini: project ID dan endpoint memang publik.
+ */
+(function (global) {
+  'use strict';
+
+  const base = global.ContentRepository;
+  if (!base) return;
+
+  const CFG = {
+    endpoint: 'https://fra.cloud.appwrite.io/v1',
+    project: '6ace47c90031991e50c8',
+    db: 'rohis',
+    bucket: 'media',
+    team: 'pengurus',
+    siteRow: 'main',
+  };
+
+  const IS_ADMIN = !!(document.body && document.body.dataset.page === 'kelola');
+  const FALLBACK_KEY = 'rohis:aw-session';
+  const TEAM = 'team:' + CFG.team;
+
+  // ------------------------------------------------------------------
+  // HTTP
+  // ------------------------------------------------------------------
+  class ApiError extends Error {
+    constructor(status, message, type) {
+      super(message);
+      this.name = 'ApiError';
+      this.status = status;
+      this.type = type || '';
+    }
+  }
+
+  function readFallback() {
+    try { return localStorage.getItem(FALLBACK_KEY) || ''; } catch (e) { return ''; }
+  }
+  function saveFallback(value) {
+    try { localStorage.setItem(FALLBACK_KEY, value); } catch (e) { /* abaikan */ }
+  }
+  function clearFallback() {
+    try { localStorage.removeItem(FALLBACK_KEY); } catch (e) { /* abaikan */ }
+  }
+
+  async function request(method, path, opts) {
+    opts = opts || {};
+    const url = new URL(CFG.endpoint + path);
+    (opts.queries || []).forEach((q) => url.searchParams.append('queries[]', q));
+
+    const headers = { 'X-Appwrite-Project': CFG.project };
+    if (IS_ADMIN) {
+      const fb = readFallback();
+      if (fb) headers['X-Fallback-Cookies'] = fb;
+    }
+    let body;
+    if (opts.form) {
+      body = opts.form;
+    } else if (opts.json !== undefined) {
+      headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(opts.json);
+    }
+
+    const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), opts.timeout || 15000) : null;
+    let res;
+    try {
+      res = await fetch(url.href, {
+        method,
+        headers,
+        body,
+        signal: ctrl ? ctrl.signal : undefined,
+        credentials: 'omit',
+        cache: IS_ADMIN ? 'no-store' : 'default',
+      });
+    } catch (err) {
+      const e = new ApiError(0, 'Tidak bisa terhubung ke server.', 'network');
+      e.network = true;
+      throw e;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+
+    if (IS_ADMIN) {
+      const fb = res.headers.get('x-fallback-cookies');
+      if (fb) saveFallback(fb);
+    }
+
+    let data = null;
+    const text = await res.text();
+    if (text) {
+      try { data = JSON.parse(text); } catch (e) { data = null; }
+    }
+
+    if (!res.ok) {
+      const err = new ApiError(res.status, (data && data.message) || 'Permintaan gagal (' + res.status + ').', data && data.type);
+      if (res.status === 401 && IS_ADMIN && !opts.silent401) {
+        clearFallback();
+        global.dispatchEvent(new Event('rohis:auth-expired'));
+      }
+      throw err;
+    }
+    return data;
+  }
+
+  // ------------------------------------------------------------------
+  // Query helpers (format JSON yang dipakai Appwrite)
+  // ------------------------------------------------------------------
+  const Q = {
+    limit: (n) => JSON.stringify({ method: 'limit', values: [n] }),
+    orderDesc: (attr) => JSON.stringify({ method: 'orderDesc', attribute: attr }),
+    orderAsc: (attr) => JSON.stringify({ method: 'orderAsc', attribute: attr }),
+    cursorAfter: (id) => JSON.stringify({ method: 'cursorAfter', values: [id] }),
+  };
+
+  const PAGE = 100;
+  const MAX_PAGES = 5;
+
+  function rowsPath(table, id) {
+    return '/tablesdb/' + CFG.db + '/tables/' + table + '/rows' + (id ? '/' + encodeURIComponent(id) : '');
+  }
+
+  async function listRows(table, order) {
+    const out = [];
+    let cursor = null;
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const queries = [Q.limit(PAGE)].concat(order || []);
+      if (cursor) queries.push(Q.cursorAfter(cursor));
+      const data = await request('GET', rowsPath(table), { queries });
+      const rows = (data && data.rows) || [];
+      out.push.apply(out, rows);
+      if (rows.length < PAGE) break;
+      cursor = rows[rows.length - 1].$id;
+    }
+    return out;
+  }
+
+  // ------------------------------------------------------------------
+  // Pemetaan baris <-> objek yang dipakai UI
+  // ------------------------------------------------------------------
+  const clip = (value, max) => String(value == null ? '' : value).slice(0, max);
+
+  function stamp(row, item) {
+    item.id = row.$id;
+    if (row.$createdAt) item.createdAt = row.$createdAt;
+    if (row.$updatedAt) item.updatedAt = row.$updatedAt;
+    return item;
+  }
+
+  const MAP = {
+    activities: {
+      table: 'activities',
+      order: [Q.orderDesc('date')],
+      fromRow(row) {
+        return stamp(row, {
+          title: row.title || '',
+          date: row.date || '',
+          category: row.category || '',
+          cover: row.cover || '',
+          excerpt: row.excerpt || '',
+          content: row.content || '',
+          status: row.status || 'draft',
+        });
+      },
+      toData(a) {
+        return {
+          title: clip(a.title, 200),
+          date: clip(a.date, 10),
+          category: clip(a.category, 60),
+          cover: clip(a.cover, 2000),
+          excerpt: String(a.excerpt || ''),
+          content: String(a.content || ''),
+          status: clip(a.status || 'draft', 20),
+        };
+      },
+      published: (a) => a.status === 'published',
+    },
+    articles: {
+      table: 'articles',
+      order: [Q.orderDesc('date')],
+      fromRow(row) {
+        return stamp(row, {
+          title: row.title || '',
+          author: row.author || '',
+          date: row.date || '',
+          category: row.category || '',
+          cover: row.cover || '',
+          excerpt: row.excerpt || '',
+          content: row.content || '',
+          readTime: row.readTime || '',
+          edition: row.edition || '',
+          status: row.status || 'draft',
+        });
+      },
+      toData(a) {
+        return {
+          title: clip(a.title, 200),
+          author: clip(a.author, 120),
+          date: clip(a.date, 10),
+          category: clip(a.category, 60),
+          cover: clip(a.cover, 2000),
+          excerpt: String(a.excerpt || ''),
+          content: String(a.content || ''),
+          readTime: clip(a.readTime, 40),
+          edition: clip(a.edition, 60),
+          status: clip(a.status || 'draft', 20),
+        };
+      },
+      published: (a) => a.status === 'published',
+    },
+    programs: {
+      table: 'programs',
+      order: [Q.orderAsc('sortOrder')],
+      fromRow(row) {
+        return stamp(row, {
+          number: row.number || '',
+          title: row.title || '',
+          description: row.description || '',
+          status: row.status || 'active',
+          order: typeof row.sortOrder === 'number' ? row.sortOrder : 0,
+        });
+      },
+      toData(p) {
+        return {
+          number: clip(p.number, 8),
+          title: clip(p.title, 120),
+          description: String(p.description || ''),
+          status: clip(p.status || 'active', 20),
+          sortOrder: Math.round(Number(p.order) || 0),
+        };
+      },
+      // Program nonaktif tetap disaring oleh halaman publik.
+      published: () => true,
+    },
+  };
+
+  // Draft hanya terlihat oleh pengurus; yang terbit terlihat semua orang.
+  function permissionsFor(kind, item) {
+    const visible = MAP[kind].published(item);
+    return [
+      visible ? 'read("any")' : 'read("' + TEAM + '")',
+      'update("' + TEAM + '")',
+      'delete("' + TEAM + '")',
+    ];
+  }
+
+  // Row ID maks. 36 karakter, hanya a-z A-Z 0-9 . - _
+  function makeRowId(existingIds, title) {
+    const ids = new Set(existingIds);
+    const slug = (global.RohisUtil ? global.RohisUtil.slugify(title) : '').slice(0, 30).replace(/-+$/, '');
+    const root = slug || 'item';
+    let candidate = root;
+    let n = 2;
+    while (ids.has(candidate)) {
+      const suffix = '-' + n;
+      candidate = root.slice(0, 36 - suffix.length) + suffix;
+      n += 1;
+    }
+    return candidate;
+  }
+
+  function randomSuffix() {
+    return '-' + Math.random().toString(36).slice(2, 5);
+  }
+
+  // ------------------------------------------------------------------
+  // Memo ringan untuk halaman publik (satu pemuatan halaman)
+  // ------------------------------------------------------------------
+  const memo = new Map();
+  function once(key, fn) {
+    if (IS_ADMIN) return fn();
+    if (!memo.has(key)) {
+      const p = fn().catch((err) => { memo.delete(key); throw err; });
+      memo.set(key, p);
+    }
+    return memo.get(key);
+  }
+
+  async function withFallback(fn, fallback) {
+    if (IS_ADMIN) return fn();
+    try {
+      return await fn();
+    } catch (err) {
+      console.warn('Appwrite tidak terjangkau, memakai data/*.json:', err && err.message);
+      return fallback();
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Repository
+  // ------------------------------------------------------------------
+  const repo = Object.create(base);
+
+  async function listKind(kind) {
+    const m = MAP[kind];
+    const rows = await listRows(m.table, m.order);
+    return rows.map(m.fromRow);
+  }
+
+  async function getOne(kind, id) {
+    const m = MAP[kind];
+    try {
+      const row = await request('GET', rowsPath(m.table, id));
+      return m.fromRow(row);
+    } catch (err) {
+      if (err.status === 404 || err.status === 401) return null;
+      throw err;
+    }
+  }
+
+  async function saveKind(kind, item) {
+    const m = MAP[kind];
+    const data = m.toData(item);
+    const permissions = permissionsFor(kind, data);
+
+    if (item.id) {
+      try {
+        const row = await request('PATCH', rowsPath(m.table, item.id), { json: { data, permissions } });
+        return Object.assign(item, m.fromRow(row));
+      } catch (err) {
+        if (err.status !== 404) throw err;
+        // baris belum ada di Appwrite: buat dengan ID yang sama
+        const row = await request('POST', rowsPath(m.table), { json: { rowId: item.id, data, permissions } });
+        return Object.assign(item, m.fromRow(row));
+      }
+    }
+
+    const existing = (await listRows(m.table)).map((r) => r.$id);
+    let rowId = makeRowId(existing, item.title);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const row = await request('POST', rowsPath(m.table), { json: { rowId, data, permissions } });
+        return Object.assign(item, m.fromRow(row));
+      } catch (err) {
+        if (err.status !== 409) throw err;
+        rowId = rowId.slice(0, 32) + randomSuffix();
+      }
+    }
+    throw new ApiError(409, 'Gagal membuat ID unik, coba lagi.');
+  }
+
+  async function deleteKind(kind, id) {
+    try {
+      await request('DELETE', rowsPath(MAP[kind].table, id));
+    } catch (err) {
+      if (err.status !== 404) throw err;
+    }
+  }
+
+  Object.assign(repo, {
+    // ---- Pengaturan situs ----------------------------------------------
+    getSite() {
+      return once('site', () =>
+        withFallback(
+          async () => {
+            try {
+              const row = await request('GET', rowsPath('site', CFG.siteRow));
+              const site = JSON.parse(row.payload);
+              if (site && typeof site === 'object') return site;
+              throw new Error('payload site tidak valid');
+            } catch (err) {
+              if (IS_ADMIN && err.status === 404) return {};
+              throw err;
+            }
+          },
+          () => base.getSite()
+        )
+      );
+    },
+
+    async saveSite(site) {
+      const data = { payload: JSON.stringify(site) };
+      const permissions = ['read("any")', 'update("' + TEAM + '")', 'delete("' + TEAM + '")'];
+      try {
+        await request('PATCH', rowsPath('site', CFG.siteRow), { json: { data } });
+      } catch (err) {
+        if (err.status !== 404) throw err;
+        await request('POST', rowsPath('site'), { json: { rowId: CFG.siteRow, data, permissions } });
+      }
+      return site;
+    },
+
+    // ---- Program --------------------------------------------------------
+    getPrograms() {
+      return once('programs', () => withFallback(() => listKind('programs'), () => base.getPrograms()));
+    },
+    saveProgram(program) { return saveKind('programs', program); },
+    deleteProgram(id) { return deleteKind('programs', id); },
+
+    // ---- Kegiatan -------------------------------------------------------
+    getActivities() {
+      return once('activities', () => withFallback(() => listKind('activities'), () => base.getActivities()));
+    },
+    getActivity(id) {
+      return withFallback(() => getOne('activities', id), () => base.getActivity(id));
+    },
+    saveActivity(activity) { return saveKind('activities', activity); },
+    deleteActivity(id) { return deleteKind('activities', id); },
+
+    // ---- Tulisan --------------------------------------------------------
+    getArticles() {
+      return once('articles', () => withFallback(() => listKind('articles'), () => base.getArticles()));
+    },
+    getArticle(id) {
+      return withFallback(() => getOne('articles', id), () => base.getArticle(id));
+    },
+    saveArticle(article) { return saveKind('articles', article); },
+    deleteArticle(id) { return deleteKind('articles', id); },
+
+    // ---- Media (Appwrite Storage) ---------------------------------------
+    async getMedia() {
+      const data = await request('GET', '/storage/buckets/' + CFG.bucket + '/files', {
+        queries: [Q.limit(100), Q.orderDesc('$createdAt')],
+      });
+      return ((data && data.files) || []).map(mediaFromFile);
+    },
+
+    async saveMedia(item) {
+      if (!item || !item.blob) throw new Error('File gambar tidak ditemukan.');
+      const form = new FormData();
+      form.append('fileId', 'unique()');
+      form.append('file', item.blob, item.name || 'gambar.jpg');
+      const file = await request('POST', '/storage/buckets/' + CFG.bucket + '/files', { form, timeout: 60000 });
+      return mediaFromFile(file);
+    },
+
+    async deleteMedia(id) {
+      try {
+        await request('DELETE', '/storage/buckets/' + CFG.bucket + '/files/' + encodeURIComponent(id));
+      } catch (err) {
+        if (err.status !== 404) throw err;
+      }
+    },
+
+    // Data kini ada di Appwrite; tidak ada salinan lokal yang perlu direset.
+    async resetToSeed() {},
+  });
+
+  function fileUrl(id) {
+    return CFG.endpoint + '/storage/buckets/' + CFG.bucket + '/files/' + encodeURIComponent(id) + '/view?project=' + CFG.project;
+  }
+
+  function mediaFromFile(file) {
+    const url = fileUrl(file.$id);
+    return {
+      id: file.$id,
+      name: file.name || file.$id,
+      size: file.sizeOriginal || 0,
+      createdAt: file.$createdAt,
+      url,
+      dataUrl: url, // nama lama dipertahankan agar UI Kelola tidak perlu diubah
+    };
+  }
+
+  // ------------------------------------------------------------------
+  // Login pengurus (kode 6 angka lewat email)
+  // ------------------------------------------------------------------
+  const ERRORS = {
+    user_invalid_token: 'Kode salah atau sudah kedaluwarsa.',
+    user_invalid_credentials: 'Kode salah atau sudah kedaluwarsa.',
+    general_rate_limit_exceeded: 'Terlalu sering mencoba. Tunggu beberapa menit lalu ulangi.',
+    general_argument_invalid: 'Email atau kode tidak valid.',
+    user_blocked: 'Akun ini diblokir.',
+    network: 'Tidak bisa terhubung ke server. Periksa koneksi internet.',
+  };
+
+  function friendly(err) {
+    if (err && ERRORS[err.type]) return ERRORS[err.type];
+    if (err && err.network) return ERRORS.network;
+    return (err && err.message) || 'Terjadi kesalahan.';
+  }
+
+  const Auth = {
+    friendly,
+
+    /** @returns {Promise<null | {user: object, member: boolean}>} */
+    async me() {
+      try {
+        const user = await request('GET', '/account', { silent401: true });
+        const teams = await request('GET', '/teams', { silent401: true });
+        const member = ((teams && teams.teams) || []).some((t) => t.$id === CFG.team);
+        return { user, member };
+      } catch (err) {
+        if (err.status === 401) {
+          clearFallback();
+          return null;
+        }
+        throw err;
+      }
+    },
+
+    async sendCode(email) {
+      const token = await request('POST', '/account/tokens/email', {
+        json: { userId: 'unique()', email: String(email).trim().toLowerCase() },
+        silent401: true,
+      });
+      return token.userId;
+    },
+
+    async verify(userId, code) {
+      await request('POST', '/account/sessions/token', {
+        json: { userId, secret: String(code).replace(/\s+/g, '') },
+        silent401: true,
+      });
+      return Auth.me();
+    },
+
+    async logout() {
+      try {
+        await request('DELETE', '/account/sessions/current', { silent401: true });
+      } catch (err) { /* sesi mungkin sudah habis */ }
+      clearFallback();
+    },
+  };
+
+  global.ContentRepository = repo;
+  global.RohisAuth = Auth;
+  global.RohisBackend = { config: CFG, ApiError, makeRowId, permissionsFor };
+})(window);
